@@ -1,0 +1,243 @@
+- id: NOTICE_0001
+  issue_type: parameter_conflict
+  essence: 同名语义参数在不同 API 层可能不兼容，盲用历史参数名会触发冲突。
+  root_cause: Manim 当前接口期望 opacity，fill_opacity 不在该方法有效参数集合中。
+  never_do:
+  - 不查当前版本签名就直接沿用旧参数名。
+  guardrails:
+  - 调用前先确认目标方法签名。
+  - 参数名变更时优先按官方接口对齐。
+  trigger_signals:
+  - unexpected keyword / 参数被忽略 / 视觉效果未生效
+  preferred_pattern: add_background_rectangle(opacity=...)
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0002
+  issue_type: api_deprecation
+  essence: 对象访问路径会随版本演进，依赖废弃方法会在升级后断裂。
+  root_cause: get_labels/default_numbers_to_display 已不再是稳定入口，属性 .numbers 才是当前模型。
+  never_do:
+  - 继续依赖已废弃方法作为主路径。
+  guardrails:
+  - 优先使用公开属性和当前文档推荐 API。
+  - 升级后先跑一次关键对象访问兼容检查。
+  trigger_signals:
+  - 'AttributeError: object has no attribute ...'
+  preferred_pattern: 遍历 number_line.numbers 并按坐标筛选
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0003
+  issue_type: value_error
+  essence: MathTex 仅适用于纯数学表达式；当包含非数学内容（中文、自然语言文本、长句、段落或特殊字符）时，LaTeX 引擎无法正确解析，在转换为
+    DVI 格式时触发 ValueError。
+  root_cause: 'MathTex 对象中混入了不适合 LaTeX 数学模式的内容，导致渲染引擎解析失败。常见根因包括：
+
+    1. 在 MathTex 中直接写入中文文本或 Unicode 中文字符
+
+    2. 在 MathTex 中使用长句、段落式自然语言描述
+
+    3. 在 MathTex 中混合数学公式与非数学说明文字
+
+    4. 使用了未转义的特殊字符或非标准 LaTeX 语法
+
+    LaTeX 引擎期望纯数学表达式，遇到文本内容时在 dvi 转换阶段抛出 "latex error converting to dvi" 错误。
+
+    '
+  never_do:
+  - 在 MathTex 中直接编写中文文本或 Unicode 中文字符
+  - 在 MathTex 中使用长句、段落或自然语言描述性内容
+  - 在 MathTex 中混合数学符号与自然语言句子（如"设函数 f(x) = x^2"）
+  - 在 MathTex 上反复试错字体或宏包来硬容纳自然语言
+  - 在数学表达式中使用未转义的特殊字符或非标准 LaTeX 语法
+  guardrails:
+  - 语义分层原则：数学内容用 MathTex，说明文字和中文内容用 Text
+  - 渲染失败后先做内容分类（数学 vs 文本），再决定使用 Text 或 MathTex，而不是继续调整 LaTeX 参数
+  - 出现 dvi 转换错误时，优先执行 MathTex -> Text 降级策略
+  - 对于中英数混合语句，使用 VGroup 拆分并按基线对齐
+  - 渲染前检查 MathTex 内容是否仅包含纯数学表达式
+  - 确保 MathTex 遵循标准 LaTeX 数学语法规范
+  - 在渲染前通过简单测试验证 LaTeX 代码正确性
+  - 确保系统环境中 LaTeX 包和依赖完整可用
+  trigger_signals:
+  - 运行时抛出 ValueError 异常
+  - 错误消息中包含 'latex error converting to dvi' 或类似 LaTeX 转换失败提示
+  - LaTeX 日志输出显示编码错误、语法错误、未知命令或转换失败
+  - 多次 LaTeX 渲染失败且文本内容包含自然语言或中文
+  - 数学渲染失败或显示异常
+  preferred_pattern: "核心原则：严格区分数学公式和自然语言文本\n\n模式1 - 纯文本场景：\n  Text('这是一个中文说明', font=CN_FONT)\n\
+    \n模式2 - 纯数学场景：\n  MathTex(r'f(x) = x^2 + 2x + 1')\n\n模式3 - 混合内容场景（推荐）：\n  # 错误做法：MathTex('设函数\
+    \ f(x) = x^2')\n  # 正确做法：拆分为 Text + MathTex\n  VGroup(\n      Text('设函数', font=CN_FONT),\n\
+    \      MathTex(r'f(x) = x^2')\n  ).arrange(RIGHT)\n\n模式4 - 复杂混排场景：\n  VGroup(\n\
+    \      MathTex(r'x_1'),\n      Text('且', font=CN_FONT),\n      MathTex(r'x_2')\n\
+    \  ).arrange(RIGHT).align_to(ORIGIN, DOWN)\n\n关键要点：\n- MathTex 仅用于纯 LaTeX 数学表达式\n\
+    - Text 用于所有自然语言、中文、长句和说明性文本\n- 混合内容使用 VGroup 组合并对齐\n"
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 12
+    success_rate: 1.0
+    consolidated_from:
+    - NOTICE_0003
+    - NOTICE_0007
+    - NOTICE_0008
+    - NOTICE_0009
+    - NOTICE_0010
+    - NOTICE_0011
+    - NOTICE_0012
+    - NOTICE_0013
+    - NOTICE_0014
+    - NOTICE_0015
+    - NOTICE_0016
+    - NOTICE_0017
+  status: validated
+- id: NOTICE_0004
+  issue_type: font_rendering_error
+  essence: Text 依赖系统字体字形表，常规中文字体缺失 Unicode 数学上下标，导致 Pango fallback 链断裂渲染为缺字块。
+  root_cause: SimHei 等基础中文字体未收录 U+2080-U+2089 下标区块，Pango 静默回退至默认西文字体仍无对应字形，触发 .notdef
+    占位符。
+  never_do:
+  - 在 Text 中直接硬编码 Unicode 上下标字符（如 ₁ ₂ ⁰ ¹）。
+  guardrails:
+  - 组件隔离：说明文字用 Text，数学符号、变量和上下标必须用 MathTex。
+  - 安全混排：中英数混合语句使用 VGroup 拆分并按基线对齐。
+  trigger_signals:
+  - 单行文本中仅局部字符显示为空白方框。
+  - Pango 日志隐式 fallback 或静默缺失。
+  preferred_pattern: VGroup(MathTex(r'x_1'), Text('且', font=CN_FONT), MathTex(r'x_2')).arrange(RIGHT)
+    组合
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0006
+  issue_type: invalid_keyword_in_mobject_initialization
+  essence: Mobject 子类（如 Axes）初始化时会透传参数到基类，若传入未支持的关键字参数（如 height/width/direct 等）会在构造阶段直接抛出
+    TypeError。
+  root_cause: '向 Mobject 子类构造函数传入了当前版本签名中不存在的关键字参数，这些参数最终透传到 Mobject.__init__() 时触发
+    "unexpected keyword argument" 错误。
+
+    常见场景：
+
+    1. Axes(height=..., width=...) - 应使用 x_length/y_length
+
+    2. 其他 Mobject 子类使用了不支持的尺寸或样式参数
+
+    这通常源于未查阅官方文档就假设参数存在，或沿用了旧版本的参数名。
+
+    '
+  never_do:
+  - 不要向 Mobject 子类（如 Axes、NumberLine 等）传入未在当前版本签名中出现的关键字参数
+  - 不要把 width/height 当作 Axes 或其他 Mobject 子类的初始化参数直接传入
+  - 不要在不查阅类文档或源码的情况下，向对象初始化随意添加未定义的关键字参数
+  - 不要假设旧版本参数名在新版本中仍然有效
+  guardrails:
+  - 尺寸控制：Mobject 子类优先使用其专用参数（如 Axes 用 x_length/y_length，NumberLine 用 x_range）
+  - 二次调整：需要调整尺寸时在初始化后调用 set_width()/set_height()、scale() 或 stretch()
+  - 静态检查：提交前检查代码，若出现 Mobject(height=...) 或 Mobject(width=...) 等模式，改写为对应类的标准参数
+  - 文档验证：传递参数前查阅官方文档或源代码，确认允许的关键字参数列表
+  - IDE 辅助：使用类型检查工具或 IDE 自动补全功能预防参数不匹配错误
+  trigger_signals:
+  - 'TypeError: Mobject.__init__() got an unexpected keyword argument ''height'''
+  - 'TypeError: Mobject.__init__() got an unexpected keyword argument ''width'''
+  - 'TypeError: Mobject.__init__() got an unexpected keyword argument ''<other>'''
+  - 报错堆栈指向 Mobject 子类初始化行（如 axes = Axes(...)、line = NumberLine(...))
+  - 错误发生在 runtime 或 render 阶段，类型为 TypeError 并与关键字参数相关
+  preferred_pattern: "模式1 - Axes 初始化（推荐）：\n  axes = Axes(\n      x_range=[-5, 5, 1],\n\
+    \      y_range=[-3, 3, 1],\n      x_length=8,\n      y_length=6,\n      tips=False\n\
+    \  )\n  # 如需后续调整尺寸：\n  axes.set_width(10)\n  axes.scale(1.2)\n\n模式2 - 禁止的反模式：\n\
+    \  # ❌ 错误：Axes(height=6, width=8)  # 触发 TypeError\n  # ❌ 错误：NumberLine(height=2)\
+    \      # 触发 TypeError\n\n通用原则：\n- 每个 Mobject 子类有其专属的初始化参数，查阅对应类的文档\n- 尺寸调整优先使用类专用参数，其次使用后置方法（set_width/set_height/scale）\n\
+    - 避免将基类不支持的参数透传到 Mobject.__init__()\n"
+  source: heuristic
+  confidence: 0.92
+  evidence:
+    verified_attempts: 2
+    success_rate: 1.0
+    consolidated_from:
+    - NOTICE_0005
+    - NOTICE_0006
+  status: validated
+- id: NOTICE_0018
+  issue_type: undefined_name
+  essence: Manim通配符导入（from manim import *）不包含所有颜色常量，部分颜色名称（如CYAN、TEAL、PURPLE等）在某些版本中可能未导出，导致NameError。
+  root_cause: 代码使用了未在from manim import *导出的颜色常量（如CYAN），该颜色在当前Manim版本的通配符导出列表中不存在，触发NameError。
+  never_do:
+  - 假设所有颜色常量都能通过from manim import *自动导入
+  - 在不验证可用性的情况下使用非标准颜色名称
+  guardrails:
+  - 优先使用Manim标准颜色：RED、BLUE、GREEN、YELLOW、ORANGE、WHITE、BLACK、GRAY、LIGHT_BLUE等
+  - 如需使用CYAN/TEAL等非标准颜色，显式从manim.colors导入或使用RGB值替代
+  - 遇到NameError时，首先检查颜色是否在标准导出列表中
+  trigger_signals:
+  - 'NameError: name ''CYAN'' is not defined'
+  - 'NameError: name ''TEAL'' is not defined'
+  - 'NameError: name ''PURPLE'' is not defined'
+  - 错误堆栈指向颜色常量使用位置
+  preferred_pattern: 使用标准颜色WHITE/BLUE/LIGHT_BLUE替代CYAN；或显式导入from manim.colors import
+    CYAN；或使用RGB值Color('#00FFFF')
+  source: heuristic
+  confidence: 0.9
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0007
+  issue_type: invalid_keyword_in_mobject_initialization
+  essence: 当使用Mobject（尤其是Axes）进行初始化时，传递了错误的关键字参数（如height/width），导致代码质量检查阶段报错。本质是API参数名称不匹配，反映了对类构造器接口的不熟悉或文档理解偏差。
+  root_cause: Axes构造函数错误地使用了height和width参数，而官方API要求使用x_length和y_length来确定坐标轴长度。
+  never_do:
+  - 在Axes初始化中使用height和width参数
+  - 不查阅官方文档就凭猜测填写参数名
+  - 忽略IDE对未知关键字参数的警告
+  guardrails:
+  - 在调用任何Mobject构造函数前，先查阅该类的__init__文档字符串或官方手册
+  - 使用类型检查工具（如mypy）或Linter捕捉未定义的关键字参数
+  - 建立统一坐标轴创建函数（如create_standard_axes(x_range, y_range, x_len, y_len)）以封装正确参数
+  trigger_signals:
+  - 代码中出现Axes(..., height=..., width=...)的写法
+  - 运行时报错信息包含CodeQualityGateError或invalid_keyword_in_mobject_initialization
+  - 编辑器中未定义的关键字参数以下划线波浪线标示
+  preferred_pattern: 定义助手函数def make_axes(x_range, y_range, x_length, y_length, tips=False,
+    **kwargs) -> Axes:，内部调用Axes(x_range=x_range, y_range=y_range, x_length=x_length,
+    y_length=y_length, tips=tips, **kwargs)，并在所有需要坐标轴的地方使用该函数。
+  source: llm
+  confidence: 0.95
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0008
+  issue_type: stack_buffer_overflow
+  essence: 栈缓冲区溢出是由于程序在栈上分配的缓冲区写入数据时超出了其边界，导致相邻栈内存被破坏，可能引发程序崩溃或安全漏洞。
+  root_cause: 栈缓冲区溢出，具体表现为进程退出码3221225786（STATUS_STACK_BUFFER_OVERRUN），通常由不安全的拷贝操作（如strcpy、sprintf）或递归过深引起。
+  never_do:
+  - 禁止直接使用不带长度限制的字符串函数（如strcpy、sprintf、gets）操作栈缓冲区
+  - 禁止在栈上分配超大数组或递归深度无限制的函数调用
+  - 禁止假设用户输入或外部数据长度不超过固定缓冲区大小而不做校验
+  guardrails:
+  - 优先使用安全版本的字符串函数：strncpy、snprintf、strlcpy等，并确保目标缓冲区大小正确传递
+  - 对栈上分配的缓冲区，始终在写入前检查数据长度是否小于缓冲区大小
+  - 启用编译器栈保护选项（如GCC的-fstack-protector-strong）以添加canary检测
+  - 对于可能较大的数据，考虑使用堆内存分配（malloc/realloc）代替栈分配
+  trigger_signals:
+  - 进程退出码为3221225786（STATUS_STACK_BUFFER_OVERRUN）
+  - 运行日志中出现'stack overflow'、'stack buffer overrun'或'abnormal program termination'等关键字
+  - 调试器报告栈损坏或canary校验失败
+  preferred_pattern: 在渲染模块中，所有从外部接收或计算生成的字符串数据，必须使用带长度限制的复制函数（如snprintf(str, sizeof(str),
+    ...)），并对所有栈缓冲区大小进行显式常量定义，同时开启编译器堆栈保护。若数据大小不可控，优先分配堆内存。
+  source: llm
+  confidence: 0.9
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated

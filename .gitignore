@@ -1,0 +1,141 @@
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.hypothesis/
+.pytest_cache/
+
+# ============================================
+# Virtual Environment
+# ============================================
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ============================================
+# IDE
+# ============================================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ============================================
+# Environment Variables & Secrets
+# ============================================
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.deepseek.example
+
+# ============================================
+# Runtime & Generated Files
+# ============================================
+runtime/tasks/*
+!runtime/tasks/.gitkeep
+runtime/audio_cache/*
+!runtime/audio_cache/.gitkeep
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# ============================================
+# Logs
+# ============================================
+*.log
+logs/
+err.log
+out.log
+
+# ============================================
+# Temporary Files
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.swp
+Thumbs.db
+
+# ============================================
+# Testing
+# ============================================
+.pytest_cache/
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# ============================================
+# Documentation Build
+# ============================================
+*.pdf
+*.docx
+docs/_build/
+site/
+
+# ============================================
+# OS Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# ============================================
+# Project Specific
+# ============================================
+# 临时测试文件
+-ContentType
+-InFile
+-Method
+-Uri
+TODO.txt
+
+# 个人笔记和非必要文档
+随便一个AI写的.txt
+
+# 部署包
+deployment/
+*.zip
+*.tar.gz
+
+# Jupyter Notebook
+.ipynb_checkpoints

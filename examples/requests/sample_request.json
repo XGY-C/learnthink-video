@@ -1,0 +1,1631 @@
+{
+  "projectBrief": {
+    "projectId": "P9FD01C3D",
+    "topic": "制作一个讲解函数的讲解视频,请详细讲解",
+    "audience": "初中生",
+    "goal": "搞清楚概念，理解原理，能够独立解决相关问题，有可视化图像辅助理解",
+    "outline": "第1页：封面页\n标题： 函数的单调性\n副标题： 探索函数随自变量变化的增减规律\n讲师： [您的名字]\n配图建议： 一张过山车或者股市K线图的背景图（体现上升/下降的趋势）。\n第2页：情境导入（激发兴趣）\n内容：\n问题1： 回顾初中学过的函数（如 y=2xy=2x，y=−xy=−x，y=x2y=x2），随着 xx 的增大，yy 是怎么变的？\n问题2： 观看某市24小时气温变化图（给出图像）。\n提问： 你能用数学语言描述温度在哪些时间段“上升”或“下降”吗？\n设计意图： 由图像直观感受“上升”、“下降”趋势，引出数学中“单调性”的概念。\n第3页：观察与感知（形——图像法）\n标题： 从左往右看，图像如何走？\n内容：\n展示函数 f(x)=x2f(x)=x2 的图像。\n观察：\n在 yy 轴左侧（即 x≤0x≤0 时），图像向下走？还是向上走？\n在 yy 轴右侧（即 x≥0x≥0 时），图像向下走？还是向上走？\n结论：\n在区间 (−∞,0](−∞,0] 上，图像从左到右是下降的。\n在区间 [0,+∞)[0,+∞) 上，图像从左到右是上升的。\n第4页：从直观到严谨（数——定义法）\n标题： 如何用数学符号描述“上升”？\n过渡： “上升”意味着当 xx 变大时，yy 也变大。\n内容（增函数定义）：\n设函数 f(x)f(x) 的定义域为 II：\n如果对于定义域 II 内某个区间 DD 上的任意两个自变量的值 x1,x2x1,x2，\n当 x1<x2x1<x2 时，都有 f(x1)<f(x2)f(x1)<f(x2)，\n那么就说函数 f(x)f(x) 在区间 DD 上是增函数。\n重点标记： “任意”、“都有”。\n第5页：减函数的定义\n标题： 如何用数学符号描述“下降”？\n内容（类比推理）：\n当 x1<x2x1<x2 时，都有 f(x1)>f(x2)f(x1)>f(x2)，\n那么就说函数 f(x)f(x) 在区间 DD 上是减函数。\n配图： 分别画一个增函数和一个减函数的局部图像，并标出 x1,x2x1,x2 及对应的 f(x1),f(x2)f(x1),f(x2) 的位置，直观比较高低。\n第6页：概念解析与辨析（易错点）\n标题： 咬文嚼字——抓住关键词\n关键词分析：\n区间 DD： 单调性是函数的局部性质（要指明区间）。\n任意： 不能用特殊值代替，必须是所有的 x1<x2x1<x2 都满足。\n单调区间： 增函数和减函数对应的区间统称为单调区间。\n小练习（判断题）：\n已知 f(1)<f(2)f(1)<f(2)，能说 f(x)f(x) 是增函数吗？（答案：不能，缺少“任意”）。\n第7页：例题精讲1（利用图像求单调区间）\n标题： 实战演练一：看图说话\n例题： 下图为函数 y=f(x)y=f(x) 在区间 [-5, 5] 上的图像。\n（展示一个波浪形函数图像，有增有减）\n问题：\n写出函数 y=f(x)y=f(x) 的单调递增区间。\n写出函数 y=f(x)y=f(x) 的单调递减区间。\n讲解步骤： 强调区间端点写法（开区间或闭区间通常都可以）。\n第8页：例题精讲2（用定义证明单调性）\n标题： 实战演练二：代数推理\n例题： 证明函数 f(x)=2x+1f(x)=2x+1 在 (−∞,+∞)(−∞,+∞) 上是增函数。\n标准解题步骤（板书设计）：\n取值： 设 x1,x2x1,x2 是给定区间上的任意两个实数，且 x1<x2x1<x2。\n作差： 计算 f(x1)−f(x2)f(x1)−f(x2)。\n=(2x1+1)−(2x2+1)=2(x1−x2)=(2x1+1)−(2x2+1)=2(x1−x2)\n定号： 因为 x1<x2x1<x2，所以 x1−x2<0x1−x2<0，即 2(x1−x2)<02(x1−x2)<0。\n所以 f(x1)−f(x2)<0f(x1)−f(x2)<0，即 f(x1)<f(x2)f(x1)<f(x2)。\n结论： 因此，函数 f(x)=2x+1f(x)=2x+1 在 (−∞,+∞)(−∞,+∞) 上是增函数。\n第9页：课堂练习（学生活动）\n标题： 动手试试看\n题目： 证明函数 f(x)=2xf(x)=x2 在区间 (0,+∞)(0,+∞) 上是减函数。\n提示： 作差时注意通分，并判断符号。\n第10页：课堂小结（回顾与升华）\n标题： 这节课你学到了什么？\n知识点梳理：\n两种方法： 图像法（直观）和定义法（严谨）。\n一个核心： 单调性的定义（增、减函数的关键是 xx 与 yy 变化的一致性/相反性）。\n三步证明： 取值 — 作差变形 — 定号 — 下结论（四个步骤朗朗上口）。\n数学思想： 数形结合思想。\n第11页：课后作业\n标题： 巩固提升\n基础题： 课本练习题 ×× 题。\n思考题： 函数 f(x)=x2f(x)=x2 在区间 (−∞,+∞)(−∞,+∞) 上是单调函数吗？为什么？",
+    "style": "极简科技感",
+    "targetDurationSec": 60,
+    "language": "中文",
+    "manimVersion": "0.20.1",
+    "videoSpec": {
+      "aspectRatio": "16:9",
+      "resolution": "1920x1080",
+      "fps": 30,
+      "background": "#0B1020"
+    },
+    "subtitleSpec": {
+      "enabled": true,
+      "position": "bottom",
+      "maxLines": 2,
+      "fontSize": 30,
+      "mixedTimelinePolicy": "balanced"
+    },
+    "designRules": [
+      "每个 scene 只表达一个主视觉意图",
+      "默认深色背景",
+      "文字尽量少",
+      "理解优先，不追求炫技",
+      "字幕不能遮挡主视觉"
+    ],
+    "codeStyleGuide": {
+      "singleFile": true,
+      "mainSceneClass": "GeneratedVideoScene",
+      "useHelpers": true,
+      "preferBasicShapes": true,
+      "preferSafeAnimations": true,
+      "subtitleMethod": "sentence_level",
+      "fontFallback": [
+        "Microsoft YaHei",
+        "SimHei",
+        "Noto Sans CJK SC"
+      ]
+    }
+  },
+  "timedScenes": [
+    {
+      "sceneId": "SC001",
+      "durationSec": 11.972,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/23ef70dc-c7ba-4444-b00d-1dff64c7c9e1-你还记.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "你还记得学过的函数吗？",
+          "startSec": 0,
+          "endSec": 2.055
+        },
+        {
+          "index": 2,
+          "text": "比如y=2x，当x增大时，y怎么变？",
+          "startSec": 2.055,
+          "endSec": 6.535
+        },
+        {
+          "index": 3,
+          "text": "再看这个24小时气温图，温度在哪些时间段上升或下降？",
+          "startSec": 6.535,
+          "endSec": 11.972
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "你还记得学过的函数吗？",
+          "startSec": 0,
+          "endSec": 2.055
+        },
+        {
+          "index": 2,
+          "text": "比如y=2x，当x增大时，y怎么变？",
+          "startSec": 2.055,
+          "endSec": 6.535
+        },
+        {
+          "index": 3,
+          "text": "再看这个24小时气温图，温度在哪些时间段上升或下降？",
+          "startSec": 6.535,
+          "endSec": 11.972
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "left_text_right_visual",
+        "objects": [
+          {
+            "id": "OBJ001",
+            "type": "text",
+            "content": "你还记得学过的函数吗？\n比如 y = 2x，当 x 增大时，y 怎么变？\n再看这个24小时气温图，温度在哪些时间段上升或下降？",
+            "role": "旁白/问题文本",
+            "placement": "left",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ002",
+            "type": "shape",
+            "content": "line graph of y=2x",
+            "role": "函数图像示例（增函数）",
+            "placement": "right",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ003",
+            "type": "text",
+            "content": "24小时气温图",
+            "role": "图表标题",
+            "placement": "upper_right",
+            "style": {
+              "scale": 0.5,
+              "emphasis": "low"
+            }
+          },
+          {
+            "id": "OBJ004",
+            "type": "shape",
+            "content": "line graph of temperature over time",
+            "role": "生活实例（非单调函数）",
+            "placement": "right",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "high"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE001",
+          "targetRefs": [
+            "OBJ001"
+          ],
+          "action": "Write",
+          "intent": "呈现核心问题，引导观众思考。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE002",
+          "targetRefs": [
+            "OBJ002"
+          ],
+          "action": "Create",
+          "intent": "随着提到 y=2x，创建其直线图像，直观展示 x 增大 y 也增大。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE003",
+          "targetRefs": [
+            "OBJ003",
+            "OBJ004"
+          ],
+          "action": "FadeIn",
+          "intent": "在引出‘气温图’后，淡入标题和折线图，展示更复杂的变化模式。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC002",
+      "durationSec": 9.046,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/822cda0d-1419-4f36-ba9f-05ab07a76bbf-现在看.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "现在看函数f(x)=x^2的图像。",
+          "startSec": 0,
+          "endSec": 4.317
+        },
+        {
+          "index": 2,
+          "text": "在y轴左侧，图像是上升还是下降？",
+          "startSec": 4.317,
+          "endSec": 8.184
+        },
+        {
+          "index": 3,
+          "text": "在右侧呢？",
+          "startSec": 8.184,
+          "endSec": 9.046
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "现在看函数f(x)=x^2的图像。",
+          "startSec": 0,
+          "endSec": 4.317
+        },
+        {
+          "index": 2,
+          "text": "在y轴左侧，图像是上升还是下降？",
+          "startSec": 4.317,
+          "endSec": 8.184
+        },
+        {
+          "index": 3,
+          "text": "在右侧呢？",
+          "startSec": 8.184,
+          "endSec": 9.046
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "center_focus",
+        "objects": [
+          {
+            "id": "OBJ201",
+            "type": "shape",
+            "content": "Coordinate Axes",
+            "role": "坐标系",
+            "placement": "center",
+            "style": {
+              "scale": 1,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ202",
+            "type": "shape",
+            "content": "Parabola of f(x)=x^2",
+            "role": "二次函数图像",
+            "placement": "center",
+            "style": {
+              "scale": 1,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ203",
+            "type": "text",
+            "content": "f(x) = x²",
+            "role": "函数表达式",
+            "placement": "top",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ204",
+            "type": "text",
+            "content": "在y轴左侧，图像上升还是下降？\n在右侧呢？",
+            "role": "观察引导问题",
+            "placement": "bottom",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "medium"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE201",
+          "targetRefs": [
+            "OBJ201",
+            "OBJ202",
+            "OBJ203"
+          ],
+          "action": "Create",
+          "intent": "创建完整的二次函数图像，作为观察对象。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE202",
+          "targetRefs": [
+            "OBJ204"
+          ],
+          "action": "Write",
+          "intent": "随着语音提问，写出引导观察的问题。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE203",
+          "targetRefs": [
+            "OBJ202"
+          ],
+          "action": "Indicate",
+          "intent": "当说到“左侧”和“右侧”时，用指示动画高亮抛物线对应的左右部分，帮助定位。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC003",
+      "durationSec": 5.879,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/374c0a5c-3806-4476-8141-4244b736167d-在区间.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "在区间(-∞,0]上，图像从左到右下降。",
+          "startSec": 0,
+          "endSec": 3.542
+        },
+        {
+          "index": 2,
+          "text": "在[0,+∞)上，图像上升。",
+          "startSec": 3.542,
+          "endSec": 5.879
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "在区间(-∞,0]上，图像从左到右下降。",
+          "startSec": 0,
+          "endSec": 3.542
+        },
+        {
+          "index": 2,
+          "text": "在[0,+∞)上，图像上升。",
+          "startSec": 3.542,
+          "endSec": 5.879
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "center_focus",
+        "objects": [
+          {
+            "id": "OBJ301",
+            "type": "shape",
+            "content": "Parabola of f(x)=x^2",
+            "role": "二次函数图像（已有）",
+            "placement": "center",
+            "style": {
+              "scale": 1,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ302",
+            "type": "annotation",
+            "content": "(-∞, 0] 下降",
+            "role": "左侧区间标注",
+            "placement": "left",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ303",
+            "type": "annotation",
+            "content": "[0, +∞) 上升",
+            "role": "右侧区间标注",
+            "placement": "right",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ304",
+            "type": "text",
+            "content": "图像在区间(-∞,0]上下降，在[0,+∞)上上升。这种性质称为“单调性”。",
+            "role": "总结陈述",
+            "placement": "bottom",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "medium"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE301",
+          "targetRefs": [
+            "OBJ302"
+          ],
+          "action": "FadeIn",
+          "intent": "配合“在区间(-∞,0]上，图像从左到右下降”语音，淡入左侧区间标注。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE302",
+          "targetRefs": [
+            "OBJ303"
+          ],
+          "action": "FadeIn",
+          "intent": "配合“在[0,+∞)上，图像上升”语音，淡入右侧区间标注。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE303",
+          "targetRefs": [
+            "OBJ304"
+          ],
+          "action": "Write",
+          "intent": "在描述完具体区间后，写出总结句，点明“单调性”概念。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC004",
+      "durationSec": 6.842,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/9dc635e5-55ae-4698-8f27-0c8cec4139ec-这种上.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "这种上升趋势，数学中怎么描述？",
+          "startSec": 0,
+          "endSec": 3.367
+        },
+        {
+          "index": 2,
+          "text": "上升意味着当x变大时，y也变大。",
+          "startSec": 3.367,
+          "endSec": 6.842
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "这种上升趋势，数学中怎么描述？",
+          "startSec": 0,
+          "endSec": 3.367
+        },
+        {
+          "index": 2,
+          "text": "上升意味着当x变大时，y也变大。",
+          "startSec": 3.367,
+          "endSec": 6.842
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "top_text_bottom_visual",
+        "objects": [
+          {
+            "id": "OBJ401",
+            "type": "text",
+            "content": "这种上升趋势，数学中怎么描述？",
+            "role": "过渡问题",
+            "placement": "top",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ402",
+            "type": "shape",
+            "content": "Abstract increasing line/arrow",
+            "role": "抽象上升趋势图示",
+            "placement": "center",
+            "style": {
+              "scale": 0.9,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ403",
+            "type": "annotation",
+            "content": "x₁",
+            "role": "自变量1",
+            "placement": "bottom",
+            "style": {
+              "scale": 0.6,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ404",
+            "type": "annotation",
+            "content": "x₂",
+            "role": "自变量2",
+            "placement": "bottom",
+            "style": {
+              "scale": 0.6,
+              "emphasis": "medium"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE401",
+          "targetRefs": [
+            "OBJ401"
+          ],
+          "action": "Write",
+          "intent": "提出核心问题，引发思考。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE402",
+          "targetRefs": [
+            "OBJ402"
+          ],
+          "action": "Create",
+          "intent": "展示一个抽象的上升图示，建立视觉关联。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE403",
+          "targetRefs": [
+            "OBJ403",
+            "OBJ404"
+          ],
+          "action": "PopIn",
+          "intent": "当说到“当x变大时”，动态出现 x1 和 x2 两点（x1在左，x2在右），并标注。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE404",
+          "targetRefs": [
+            "OBJ403",
+            "OBJ404"
+          ],
+          "action": "Indicate",
+          "intent": "当说到“y也变大”时，从x1, x2向上引出垂线并标注f(x1), f(x2)，并高亮f(x1) < f(x2)的关系。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC005",
+      "durationSec": 14.354,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/0e64ede9-de1f-495a-a152-37ed2ece920f-增函数.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "增函数的定义是：对于区间D上任意两个自变量x1&lt;x2，都有f(x1)&lt;f(x2)。",
+          "startSec": 0,
+          "endSec": 10.717
+        },
+        {
+          "index": 2,
+          "text": "这时，函数f(x)在D上是增函数。",
+          "startSec": 10.717,
+          "endSec": 14.354
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "增函数的定义是：对于区间D上任意两个自变量x1&lt;x2，都有f(x1)&lt;f(x2)。",
+          "startSec": 0,
+          "endSec": 10.717
+        },
+        {
+          "index": 2,
+          "text": "这时，函数f(x)在D上是增函数。",
+          "startSec": 10.717,
+          "endSec": 14.354
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "formula_center",
+        "objects": [
+          {
+            "id": "OBJ501",
+            "type": "formula",
+            "content": "增函数定义：\n对于区间D上任意 x₁ < x₂,\n都有 f(x₁) < f(x₂)。\n则 f(x) 在区间D上是增函数。",
+            "role": "核心定义",
+            "placement": "center",
+            "style": {
+              "scale": 0.9,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ502",
+            "type": "shape",
+            "content": "Simple increasing function graph",
+            "role": "定义图示",
+            "placement": "bottom",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "medium"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE501",
+          "targetRefs": [
+            "OBJ501"
+          ],
+          "action": "Write",
+          "intent": "逐行写出增函数定义，强调‘任意’和‘<’关系。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE502",
+          "targetRefs": [
+            "OBJ502"
+          ],
+          "action": "Create",
+          "intent": "在读完定义后，创建图像示例，将抽象定义具象化。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE503",
+          "targetRefs": [
+            "OBJ502"
+          ],
+          "action": "Indicate",
+          "intent": "在场景最后，在图像上指示任意两组 x1<x2 及对应的函数值大小关系，强化定义理解。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC006",
+      "durationSec": 11.297,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/9a32b69b-c82e-4616-8e1a-2263fb0ade1c-减函数.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "减函数怎么描述？",
+          "startSec": 0,
+          "endSec": 1.755
+        },
+        {
+          "index": 2,
+          "text": "当x1&lt;x2时，都有f(x1)&gt;f(x2)。",
+          "startSec": 1.755,
+          "endSec": 8.547
+        },
+        {
+          "index": 3,
+          "text": "这样，函数在D上是减函数。",
+          "startSec": 8.547,
+          "endSec": 11.297
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "减函数怎么描述？",
+          "startSec": 0,
+          "endSec": 1.755
+        },
+        {
+          "index": 2,
+          "text": "当x1&lt;x2时，都有f(x1)&gt;f(x2)。",
+          "startSec": 1.755,
+          "endSec": 8.547
+        },
+        {
+          "index": 3,
+          "text": "这样，函数在D上是减函数。",
+          "startSec": 8.547,
+          "endSec": 11.297
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "comparison_split",
+        "objects": [
+          {
+            "id": "OBJ601",
+            "type": "formula",
+            "content": "增函数：\n任意 x₁ < x₂\n⇒ f(x₁) < f(x₂)",
+            "role": "增函数定义摘要",
+            "placement": "left",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ602",
+            "type": "shape",
+            "content": "Increasing graph",
+            "role": "增函数图示",
+            "placement": "left",
+            "style": {
+              "scale": 0.6,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ603",
+            "type": "formula",
+            "content": "减函数：\n任意 x₁ < x₂\n⇒ f(x₁) > f(x₂)",
+            "role": "减函数定义摘要",
+            "placement": "right",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ604",
+            "type": "shape",
+            "content": "Decreasing graph",
+            "role": "减函数图示",
+            "placement": "right",
+            "style": {
+              "scale": 0.6,
+              "emphasis": "medium"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE601",
+          "targetRefs": [
+            "OBJ601",
+            "OBJ602"
+          ],
+          "action": "FadeIn",
+          "intent": "快速呈现已知的增函数部分作为对比基准。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE602",
+          "targetRefs": [
+            "OBJ603"
+          ],
+          "action": "Write",
+          "intent": "随着讲解，写出减函数定义，重点呈现“>”符号。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE603",
+          "targetRefs": [
+            "OBJ604"
+          ],
+          "action": "Create",
+          "intent": "配合定义，创建下降的函数图像，形成完整认知。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE604",
+          "targetRefs": [
+            "OBJ603"
+          ],
+          "action": "Highlight",
+          "intent": "在定义陈述完毕后，高亮“f(x₁) > f(x₂)”部分，强调与增函数的区别。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC007",
+      "durationSec": 8.384,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/42786cb2-f572-4cea-aab8-527d75a18e45-注意几.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "注意几个关键词。",
+          "startSec": 0,
+          "endSec": 1.717
+        },
+        {
+          "index": 2,
+          "text": "单调性是局部性质，必须指明区间。",
+          "startSec": 1.717,
+          "endSec": 5.022
+        },
+        {
+          "index": 3,
+          "text": "而且‘任意’很重要，不能只用特殊值判断。",
+          "startSec": 5.022,
+          "endSec": 8.384
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "注意几个关键词。",
+          "startSec": 0,
+          "endSec": 1.717
+        },
+        {
+          "index": 2,
+          "text": "单调性是局部性质，必须指明区间。",
+          "startSec": 1.717,
+          "endSec": 5.022
+        },
+        {
+          "index": 3,
+          "text": "而且‘任意’很重要，不能只用特殊值判断。",
+          "startSec": 5.022,
+          "endSec": 8.384
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "left_text_right_visual",
+        "objects": [
+          {
+            "id": "OBJ701",
+            "type": "text",
+            "content": "注意：\n1. 单调性是局部性质，\n   必须指明区间。\n2. ‘任意’很重要，\n   不能用特殊值判断。",
+            "role": "关键点提示",
+            "placement": "left",
+            "style": {
+              "scale": 0.75,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ702",
+            "type": "shape",
+            "content": "A wavy, non-monotonic function graph",
+            "role": "反例图像",
+            "placement": "right",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ703",
+            "type": "annotation",
+            "content": "区间",
+            "role": "关键词高亮1",
+            "placement": "upper_left",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ704",
+            "type": "annotation",
+            "content": "任意",
+            "role": "关键词高亮2",
+            "placement": "lower_left",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "high"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE701",
+          "targetRefs": [
+            "OBJ701"
+          ],
+          "action": "Write",
+          "intent": "先呈现文字关键点。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE702",
+          "targetRefs": [
+            "OBJ702"
+          ],
+          "action": "Create",
+          "intent": "创建反例函数图像。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE703",
+          "targetRefs": [
+            "OBJ703"
+          ],
+          "action": "PopIn",
+          "intent": "提到“必须指明区间”时，让“区间”一词在左侧文本旁弹出高亮。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE704",
+          "targetRefs": [
+            "OBJ704"
+          ],
+          "action": "PopIn",
+          "intent": "提到“任意’很重要”时，让“任意”一词在左侧文本旁弹出高亮。同时在右侧图像上，先标出两个距离近的上升点（误导），再标出两个距离远的下降点（纠正），演示“特殊值”判断的错误。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC008",
+      "durationSec": 8.022,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/bf8773da-0498-4f88-830e-0198960881a6-来看一.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "来看一个例题。",
+          "startSec": 0,
+          "endSec": 1.567
+        },
+        {
+          "index": 2,
+          "text": "这是函数y=f(x)的图像，有增有减。",
+          "startSec": 1.567,
+          "endSec": 5.797
+        },
+        {
+          "index": 3,
+          "text": "你能写出它的单调递增区间吗？",
+          "startSec": 5.797,
+          "endSec": 8.022
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "来看一个例题。",
+          "startSec": 0,
+          "endSec": 1.567
+        },
+        {
+          "index": 2,
+          "text": "这是函数y=f(x)的图像，有增有减。",
+          "startSec": 1.567,
+          "endSec": 5.797
+        },
+        {
+          "index": 3,
+          "text": "你能写出它的单调递增区间吗？",
+          "startSec": 5.797,
+          "endSec": 8.022
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "center_focus",
+        "objects": [
+          {
+            "id": "OBJ801",
+            "type": "text",
+            "content": "例题：写出函数 y=f(x) 的单调递增区间和单调递减区间。",
+            "role": "例题问题",
+            "placement": "top",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ802",
+            "type": "shape",
+            "content": "Wavy function graph with several hills and valleys",
+            "role": "例题函数图像",
+            "placement": "center",
+            "style": {
+              "scale": 1,
+              "emphasis": "high"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE801",
+          "targetRefs": [
+            "OBJ801"
+          ],
+          "action": "Write",
+          "intent": "明确例题任务。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE802",
+          "targetRefs": [
+            "OBJ802"
+          ],
+          "action": "Create",
+          "intent": "随着“这是函数y=f(x)的图像”语音，逐步绘制出波浪形图像。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE803",
+          "targetRefs": [
+            "OBJ802"
+          ],
+          "action": "Indicate",
+          "intent": "当问出“你能写出...”时，用指示动画缓慢扫过整个图像，引导观众跟随观察起伏趋势。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC009",
+      "durationSec": 6.942,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/277a9130-956b-4d62-b0a8-694de0638384-找出递.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "找出递增和递减的区间。",
+          "startSec": 0,
+          "endSec": 2.38
+        },
+        {
+          "index": 2,
+          "text": "注意区间端点写法，开区间或闭区间通常都可以。",
+          "startSec": 2.38,
+          "endSec": 6.942
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "找出递增和递减的区间。",
+          "startSec": 0,
+          "endSec": 2.38
+        },
+        {
+          "index": 2,
+          "text": "注意区间端点写法，开区间或闭区间通常都可以。",
+          "startSec": 2.38,
+          "endSec": 6.942
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "center_focus",
+        "objects": [
+          {
+            "id": "OBJ901",
+            "type": "shape",
+            "content": "Wavy function graph (from previous scene)",
+            "role": "例题函数图像（已有）",
+            "placement": "center",
+            "style": {
+              "scale": 1,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ902",
+            "type": "annotation",
+            "content": "递增: [a, b], [c, d]",
+            "role": "递增区间标注组",
+            "placement": "bottom",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ903",
+            "type": "annotation",
+            "content": "递减: [b, c]",
+            "role": "递减区间标注组",
+            "placement": "bottom",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ904",
+            "type": "text",
+            "content": "注意：区间端点用开区间或闭区间均可，通常写成闭区间。",
+            "role": "端点写法说明",
+            "placement": "lower_left",
+            "style": {
+              "scale": 0.6,
+              "emphasis": "medium"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE901",
+          "targetRefs": [
+            "OBJ902"
+          ],
+          "action": "FadeIn",
+          "intent": "随着“找出递增...区间”，淡入绿色条带和递增区间文字标注。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE902",
+          "targetRefs": [
+            "OBJ903"
+          ],
+          "action": "FadeIn",
+          "intent": "随着“和递减的区间”，淡入红色条带和递减区间文字标注。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE903",
+          "targetRefs": [
+            "OBJ904"
+          ],
+          "action": "Write",
+          "intent": "在区间标注完成后，写出关于区间端点写法的补充说明。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC010",
+      "durationSec": 9.254,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/db4175a2-1e04-4814-aede-998fb68241c6-另一个.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "另一个例题：证明f(x)=2x+1是增函数。",
+          "startSec": 0,
+          "endSec": 5.242
+        },
+        {
+          "index": 2,
+          "text": "标准步骤是：取值、作差、定号、下结论。",
+          "startSec": 5.242,
+          "endSec": 9.254
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "另一个例题：证明f(x)=2x+1是增函数。",
+          "startSec": 0,
+          "endSec": 5.242
+        },
+        {
+          "index": 2,
+          "text": "标准步骤是：取值、作差、定号、下结论。",
+          "startSec": 5.242,
+          "endSec": 9.254
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "process_flow",
+        "objects": [
+          {
+            "id": "OBJ1001",
+            "type": "text",
+            "content": "证明：f(x)=2x+1 是增函数。",
+            "role": "例题标题",
+            "placement": "top",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ1002",
+            "type": "text",
+            "content": "1. 取值\n2. 作差\n3. 定号\n4. 下结论",
+            "role": "证明步骤标题",
+            "placement": "left",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ1003",
+            "type": "formula",
+            "content": "设 x₁, x₂ ∈ R, 且 x₁ < x₂",
+            "role": "步骤1内容（取值）",
+            "placement": "right",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ1004",
+            "type": "formula",
+            "content": "f(x₁)-f(x₂) = (2x₁+1)-(2x₂+1) = 2(x₁-x₂)",
+            "role": "步骤2&3内容（作差、变形）",
+            "placement": "right",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ1005",
+            "type": "formula",
+            "content": "∵ x₁ < x₂, ∴ x₁-x₂ < 0, ∴ f(x₁)-f(x₂) < 0",
+            "role": "步骤3内容（定号）",
+            "placement": "right",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ1006",
+            "type": "formula",
+            "content": "∴ f(x₁) < f(x₂)。\n故 f(x)=2x+1 在 R 上是增函数。",
+            "role": "步骤4内容（结论）",
+            "placement": "right",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "high"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE1001",
+          "targetRefs": [
+            "OBJ1001",
+            "OBJ1002"
+          ],
+          "action": "FadeIn",
+          "intent": "呈现例题和四个步骤的框架。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE1002",
+          "targetRefs": [
+            "OBJ1003"
+          ],
+          "action": "Write",
+          "intent": "配合“取值”，写出第一步的具体数学表述。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE1003",
+          "targetRefs": [
+            "OBJ1004"
+          ],
+          "action": "Write",
+          "intent": "配合“作差”，写出第二步的代数运算过程。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE1004",
+          "targetRefs": [
+            "OBJ1005"
+          ],
+          "action": "Write",
+          "intent": "配合“定号”，写出基于已知条件判断差式符号的过程。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE1005",
+          "targetRefs": [
+            "OBJ1006"
+          ],
+          "action": "Write",
+          "intent": "最后，写出证明结论，完成整个演示。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC011",
+      "durationSec": 9.917,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/e79f9acf-7f7e-4bc7-96bb-f2f141131d9e-动手练.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "动手练习：证明函数f(x)=2/x在(0,+∞)上是减函数。",
+          "startSec": 0,
+          "endSec": 6.605
+        },
+        {
+          "index": 2,
+          "text": "提示：作差时注意通分，并判断符号。",
+          "startSec": 6.605,
+          "endSec": 9.917
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "动手练习：证明函数f(x)=2/x在(0,+∞)上是减函数。",
+          "startSec": 0,
+          "endSec": 6.605
+        },
+        {
+          "index": 2,
+          "text": "提示：作差时注意通分，并判断符号。",
+          "startSec": 6.605,
+          "endSec": 9.917
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "left_text_right_visual",
+        "objects": [
+          {
+            "id": "OBJ1101",
+            "type": "text",
+            "content": "动手练习：\n证明 f(x)=2/x 在 (0, +∞) 上是减函数。",
+            "role": "练习题",
+            "placement": "left",
+            "style": {
+              "scale": 0.75,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ1102",
+            "type": "text",
+            "content": "提示：\n作差后通分：\n2/x₁ - 2/x₂ = 2(x₂ - x₁)/(x₁x₂)\n判断 x₁, x₂ > 0 时的符号。",
+            "role": "关键步骤提示",
+            "placement": "left",
+            "style": {
+              "scale": 0.65,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ1103",
+            "type": "shape",
+            "content": "Graph of f(x)=2/x for x>0",
+            "role": "函数图像参考",
+            "placement": "right",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "medium"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE1101",
+          "targetRefs": [
+            "OBJ1101",
+            "OBJ1103"
+          ],
+          "action": "FadeIn",
+          "intent": "呈现练习题目和对应的图像，供观众思考。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE1102",
+          "targetRefs": [
+            "OBJ1102"
+          ],
+          "action": "Write",
+          "intent": "随着语音提示，逐步写出作差通分后的关键表达式和符号判断思路。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC012",
+      "durationSec": 11.409,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/6ff6b6f5-4abd-4f0d-8bcf-c43e9896766f-总结一.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "总结一下：判断单调性有图像法和定义法。",
+          "startSec": 0,
+          "endSec": 4.055
+        },
+        {
+          "index": 2,
+          "text": "核心是x与y变化的一致性。",
+          "startSec": 4.055,
+          "endSec": 7.047
+        },
+        {
+          "index": 3,
+          "text": "证明分四步：取值、作差变形、定号、下结论。",
+          "startSec": 7.047,
+          "endSec": 11.409
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "总结一下：判断单调性有图像法和定义法。",
+          "startSec": 0,
+          "endSec": 4.055
+        },
+        {
+          "index": 2,
+          "text": "核心是x与y变化的一致性。",
+          "startSec": 4.055,
+          "endSec": 7.047
+        },
+        {
+          "index": 3,
+          "text": "证明分四步：取值、作差变形、定号、下结论。",
+          "startSec": 7.047,
+          "endSec": 11.409
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "center_focus",
+        "objects": [
+          {
+            "id": "OBJ1201",
+            "type": "text",
+            "content": "函数单调性总结",
+            "role": "总结标题",
+            "placement": "top",
+            "style": {
+              "scale": 0.9,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ1202",
+            "type": "text",
+            "content": "图像法",
+            "role": "方法一",
+            "placement": "upper_left",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ1203",
+            "type": "text",
+            "content": "定义法",
+            "role": "方法二",
+            "placement": "upper_right",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "medium"
+            }
+          },
+          {
+            "id": "OBJ1204",
+            "type": "shape",
+            "content": "Simple function graph",
+            "role": "图像法示例",
+            "placement": "left",
+            "style": {
+              "scale": 0.5,
+              "emphasis": "low"
+            }
+          },
+          {
+            "id": "OBJ1205",
+            "type": "text",
+            "content": "证明四步骤：\n1. 取值\n2. 作差变形\n3. 定号\n4. 下结论",
+            "role": "定义法细节",
+            "placement": "right",
+            "style": {
+              "scale": 0.7,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ1206",
+            "type": "text",
+            "content": "核心：自变量x与函数值y变化的一致性",
+            "role": "核心思想",
+            "placement": "bottom",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "high"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE1201",
+          "targetRefs": [
+            "OBJ1201"
+          ],
+          "action": "FadeIn",
+          "intent": "淡入总结标题。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE1202",
+          "targetRefs": [
+            "OBJ1202",
+            "OBJ1203"
+          ],
+          "action": "Write",
+          "intent": "呈现两种主要方法。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE1203",
+          "targetRefs": [
+            "OBJ1204",
+            "OBJ1205"
+          ],
+          "action": "FadeIn",
+          "intent": "分别展示两种方法的具体内容或示例。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE1204",
+          "targetRefs": [
+            "OBJ1206"
+          ],
+          "action": "Write",
+          "intent": "最后点明核心思想，升华主题。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "SC013",
+      "durationSec": 10.18,
+      "audioUrl": "https://qihui-duomo.oss-cn-beijing.aliyuncs.com/audio/55fc540c-d55b-4afe-9f9d-7ea9801da256-函数的.wav",
+      "sentences": [
+        {
+          "index": 1,
+          "text": "函数的单调性帮助我们理解变化规律。",
+          "startSec": 0,
+          "endSec": 3.405
+        },
+        {
+          "index": 2,
+          "text": "课后巩固练习，思考f(x)=x^2在整个实数集上是否单调。",
+          "startSec": 3.405,
+          "endSec": 10.18
+        }
+      ],
+      "subtitleItems": [
+        {
+          "index": 1,
+          "text": "函数的单调性帮助我们理解变化规律。",
+          "startSec": 0,
+          "endSec": 3.405
+        },
+        {
+          "index": 2,
+          "text": "课后巩固练习，思考f(x)=x^2在整个实数集上是否单调。",
+          "startSec": 3.405,
+          "endSec": 10.18
+        }
+      ],
+      "sceneSpec": {
+        "layoutTemplate": "center_focus",
+        "objects": [
+          {
+            "id": "OBJ1301",
+            "type": "text",
+            "content": "函数的单调性帮助我们理解变化规律。",
+            "role": "结束语",
+            "placement": "center",
+            "style": {
+              "scale": 0.9,
+              "emphasis": "high"
+            }
+          },
+          {
+            "id": "OBJ1302",
+            "type": "text",
+            "content": "课后思考：\n函数 f(x)=x² 在整个实数集 R 上单调吗？",
+            "role": "课后作业/思考题",
+            "placement": "bottom",
+            "style": {
+              "scale": 0.8,
+              "emphasis": "medium"
+            }
+          }
+        ]
+      },
+      "animationCues": [
+        {
+          "id": "CUE1301",
+          "targetRefs": [
+            "OBJ1301"
+          ],
+          "action": "Write",
+          "intent": "缓缓写出结束语，总结学习价值。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        },
+        {
+          "id": "CUE1302",
+          "targetRefs": [
+            "OBJ1302"
+          ],
+          "action": "Write",
+          "intent": "提出课后思考题，呼应课程开头内容，形成闭环。",
+          "timeSec": 0,
+          "runTimeSec": 1
+        }
+      ]
+    }
+  ],
+  "audioPolicy": {
+    "mode": "scene_audio",
+    "normalizeVolume": false,
+    "insertSilenceBetweenScenesMs": 0,
+    "targetSampleRate": 44100
+  },
+  "bgmPolicy": {
+    "enabled": false,
+    "url": null,
+    "volume": 0.15,
+    "ducking": true
+  }
+}
