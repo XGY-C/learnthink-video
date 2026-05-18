@@ -18,7 +18,9 @@ if (-not $NoReload) {
         "--reload",
         "--reload-dir", "app",
         "--reload-exclude", "runtime",
-        "--reload-exclude", "log"
+        "--reload-exclude", "log",
+        "--reload-exclude", "*.pyc",
+        "--reload-exclude", "__pycache__"
     )
 }
 

@@ -90,7 +90,7 @@ class RepairAgent:
         patched = "".join(out)
         return patched, changed
 
-    def _try_llm_repair(self, code: str, issues: list[dict], attempt_no: int, notices: list[dict] | None = None) -> tuple[str | None, dict]:
+    def _try_llm_repair(self, code: str, issues: list[dict], attempt_no: int, notices: list[dict] | None = None, doc_context: str = "") -> tuple[str | None, dict]:
         trace = {
             "llmAttempted": False,
             "llmUsed": False,
@@ -112,6 +112,19 @@ class RepairAgent:
             if redlines
             else ""
         )
+        
+        # 构建文档参考部分
+        doc_reference_block = ""
+        if doc_context:
+            doc_reference_block = (
+                "IMPORTANT: Below are relevant official Manim documentation excerpts. "
+                "Use this information to guide your repair decisions and ensure API correctness:\n\n"
+                f"{doc_context}\n\n"
+            )
+            logger.info(
+                "[repair] passing doc context to LLM (length: %d chars)",
+                len(doc_context),
+            )
 
         system_prompt = (
             "You are an expert Manim Python repair agent. "
@@ -124,6 +137,7 @@ class RepairAgent:
             "Task: fix the code for the listed issues while preserving behavior and scene intent.\n"
             "If issue mentions latex/dvi, avoid unsupported MathTex \\text{...} for CJK text and prefer Text for plain language labels.\n\n"
             + (f"Redlines:\n{redlines}\n\n" if redlines else "")
+            + (doc_reference_block if doc_reference_block else "")
             +
             f"Issues:\n{json.dumps(issues, ensure_ascii=False)}\n\n"
             f"CurrentCode:\n{code}"
@@ -162,9 +176,11 @@ class RepairAgent:
             "reason": "not_escalated",
         }
         
-        # 如果有文档搜索工具，先搜索相关文档
+        # 如果有文档搜索工具，先搜索相关文档并收集上下文
+        doc_context = ""
         if self.doc_search_tool:
             logger.info("[repair] searching documentation for %d issues", len(issues))
+            all_docs = []
             for issue in issues:
                 search_queries = self._generate_search_queries_from_issue(issue)
                 for query_text in search_queries:
@@ -182,6 +198,36 @@ class RepairAgent:
                             docs[0]["relevance_score"],
                             docs[0]["source_type"],
                         )
+                        all_docs.extend(docs)
+            
+            # 去重并构建文档上下文
+            if all_docs:
+                seen = set()
+                unique_docs = []
+                for doc in all_docs:
+                    key = (doc["source_path"], doc["content"][:100])
+                    if key not in seen:
+                        seen.add(key)
+                        unique_docs.append(doc)
+                
+                # 按相关性排序，取前3个
+                unique_docs.sort(key=lambda x: x["relevance_score"], reverse=True)
+                top_docs = unique_docs[:3]
+                
+                # 构建文档上下文字符串
+                doc_parts = []
+                for i, doc in enumerate(top_docs, 1):
+                    doc_parts.append(
+                        f"[Official Doc {i}] Source: {doc['source_path']} (Type: {doc['source_type']}, Relevance: {doc['relevance_score']:.2f})\n"
+                        f"{doc['content'][:800]}"
+                    )
+                
+                doc_context = "\n\n".join(doc_parts)
+                logger.info(
+                    "[repair] built doc context with %d unique docs (total length: %d chars)",
+                    len(top_docs),
+                    len(doc_context),
+                )
 
         for issue in issues:
             target_ids.append(issue["issueId"])
@@ -327,7 +373,9 @@ class RepairAgent:
         if escalate:
             fallback_attempted = True
             llm_trace["escalated"] = True
-            llm_code, llm_trace_result = self._try_llm_repair(current_code, issues, attempt_no, notices=notices)
+            llm_code, llm_trace_result = self._try_llm_repair(
+                current_code, issues, attempt_no, notices=notices, doc_context=doc_context
+            )
             llm_trace.update(llm_trace_result)
             fallback_reason = llm_trace.get("reason")
             if llm_code and llm_code != current_code:

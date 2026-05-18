@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     host: str = Field(default="0.0.0.0", alias="HOST")
     port: int = Field(default=8000, alias="PORT")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
+    log_to_file: bool = Field(default=False, alias="LOG_TO_FILE")
+    use_json_log: bool = Field(default=False, alias="USE_JSON_LOG")
 
     runtime_root: Path = Field(default=Path("runtime/tasks"), alias="RUNTIME_ROOT")
     prompt_root: Path = Field(default=Path("prompts"), alias="PROMPT_ROOT")
