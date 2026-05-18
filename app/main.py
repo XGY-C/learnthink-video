@@ -5,7 +5,11 @@ from app.core.config import get_settings
 from app.core.logging import configure_logging
 
 settings = get_settings()
-configure_logging(settings.log_level)
+configure_logging(
+    level=settings.log_level,
+    log_to_file=settings.log_to_file,
+    use_json=settings.use_json_log,
+)
 logger = logging.getLogger("app.main")
 
 app = FastAPI(

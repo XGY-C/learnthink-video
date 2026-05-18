@@ -32,6 +32,10 @@ source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 ```
+#### 进入虚拟环境（cmd)
+```bash
+.venv\Scripts\activate
+```
 
 ### 2. 启动服务
 
@@ -40,7 +44,7 @@ cp .env.example .env
 **方案 A：使用推荐脚本（最稳妥）**
 ```powershell
 # PowerShell
-.\scripts\dev\start_dev.ps1
+.\scripts\dev\start_dev.ps1 -Port 8005
 ```
 
 **方案 B：手动启动 (PowerShell)**
