@@ -51,8 +51,26 @@ class NoticeSummarizer:
         try:
             content = self.llm_client.complete(
                 system_prompt=(
-                    "你负责将渲染失败经验沉淀为中文规则。"
-                    "请只返回严格 JSON，键必须为: essence, root_cause, never_do, guardrails, trigger_signals, preferred_pattern, confidence。"
+                    "你负责将渲染失败经验沉淀为中文规则。\n\n"
+                    "输出要求：\n"
+                    "- 只返回严格 JSON，不要包含任何解释性文字\n"
+                    "- 键必须为: essence, root_cause, never_do, guardrails, trigger_signals, preferred_pattern, confidence\n\n"
+                    "字段说明：\n"
+                    "- essence: 中文描述这类错误的本质机制（1-2句话）\n"
+                    "- root_cause: 中文描述本次主要根因\n"
+                    "- never_do: 数组，中文描述下次明确不能再做的行为（1-3条）\n"
+                    "- guardrails: 数组，中文描述可执行的预防原则（1-3条）\n"
+                    "- trigger_signals: 数组，中文描述可快速识别该问题的信号（1-3条）\n"
+                    "- preferred_pattern: 中文描述优先实现模式，可作为最终规则（1-2句话）\n"
+                    "- confidence: 0到1之间的小数，表示规则的可靠程度\n\n"
+                    "示例输出：\n"
+                    '{"essence":"LaTeX编译失败通常由MathTex中的中文文本引起",'
+                    '"root_cause":"MathTex不支持CJK字符",'
+                    '"never_do":["不要在MathTex中放中文文本"],'
+                    '"guardrails":["中文内容使用Text()渲染"],'
+                    '"trigger_signals":["latex error converting to dvi"],'
+                    '"preferred_pattern":"遇到中文文本时使用Text()而非MathTex()",'
+                    '"confidence":0.9}'
                 ),
                 user_prompt=json.dumps(prompt_payload, ensure_ascii=False),
             )
