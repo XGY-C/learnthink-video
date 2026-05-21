@@ -61,8 +61,16 @@ class ErrorDiagnoser:
 
         system_prompt = (
             "You are a runtime error diagnoser for Manim Python execution logs. "
-            "Return strict JSON only. "
-            "Keys: stage, errorType, rootCauseLabel, normalizedMessage, confidence, evidenceLines."
+            "Return strict JSON only with keys: stage, errorType, rootCauseLabel, normalizedMessage, confidence, evidenceLines.\n\n"
+            "Guidelines:\n"
+            "- stage must be one of: parse, import, runtime, render, ffmpeg\n"
+            "- confidence should be 0.7-0.9 for LLM diagnosis\n"
+            "- Focus on Manim-specific errors (e.g., animation_target_not_mobject, latex_compilation_failed, axes_invalid_kwargs)\n"
+            "- Extract the core error message, avoid verbose explanations\n\n"
+            "Example output:\n"
+            '{"stage":"runtime","errorType":"TypeError","rootCauseLabel":"animate_non_mobject",'
+            '"normalizedMessage":"Animation only works on Mobjects","confidence":0.85,'
+            '"evidenceLines":["TypeError: Animation only works on Mobjects"]}'
         )
         user_prompt = json.dumps(
             {

@@ -117,19 +117,36 @@ class RepairAgent:
         doc_reference_block = ""
         if doc_context:
             doc_reference_block = (
-                "IMPORTANT: Below are relevant official Manim documentation excerpts. "
-                "Use this information to guide your repair decisions and ensure API correctness:\n\n"
+                "CRITICAL: The following official Manim documentation excerpts are highly relevant "
+                "to the issues you need to fix. You MUST carefully review this information and "
+                "ensure your repaired code complies with the documented API:\n\n"
                 f"{doc_context}\n\n"
+                "IMPORTANT INSTRUCTIONS:\n"
+                "1. Check the documented parameter names and use them correctly\n"
+                "2. Follow the API usage patterns shown in the documentation\n"
+                "3. If the documentation shows a different approach than the current code, prefer the documented approach\n"
+                "4. Cite specific documentation sections when making changes\n\n"
             )
             logger.info(
-                "[repair] passing doc context to LLM (length: %d chars)",
+                "[repair] passing structured doc context to LLM (length: %d chars, will influence repair)",
                 len(doc_context),
             )
 
         system_prompt = (
             "You are an expert Manim Python repair agent. "
             "Repair the provided Python code to resolve runtime issues. "
-            "Return only a complete runnable Python file."
+            "Return only a complete runnable Python file.\n\n"
+            "Guidelines:\n"
+            "- Make minimal changes to fix the specific issues\n"
+            "- Preserve the original scene intent and behavior\n"
+            "- Ensure all imports are present (from manim import *, from typing import Dict, List)\n"
+            "- Use safe_duration() for all animation run_time values\n"
+            "- For LaTeX errors: prefer Text() over MathTex() for non-formula content\n"
+            "- For Axes errors: use y_length/x_length instead of height/width\n"
+            "- Follow validated notices constraints if provided\n\n"
+            "Output requirements:\n"
+            "- Must include: from manim import *, class definition, all helper functions\n"
+            "- Code must be directly executable without modifications"
             + ("\n\n" + redline_block if redline_block else "")
         )
         user_prompt = (
@@ -210,21 +227,47 @@ class RepairAgent:
                         seen.add(key)
                         unique_docs.append(doc)
                 
-                # 按相关性排序，取前3个
+                # 按相关性排序，取前5个
                 unique_docs.sort(key=lambda x: x["relevance_score"], reverse=True)
-                top_docs = unique_docs[:3]
+                top_docs = unique_docs[:5]
                 
-                # 构建文档上下文字符串
-                doc_parts = []
-                for i, doc in enumerate(top_docs, 1):
-                    doc_parts.append(
-                        f"[Official Doc {i}] Source: {doc['source_path']} (Type: {doc['source_type']}, Relevance: {doc['relevance_score']:.2f})\n"
-                        f"{doc['content'][:800]}"
-                    )
+                # 按类型分组展示
+                doc_groups = {}
+                for doc in top_docs:
+                    source_type = doc.get("source_type", "unknown")
+                    if source_type not in doc_groups:
+                        doc_groups[source_type] = []
+                    doc_groups[source_type].append(doc)
                 
-                doc_context = "\n\n".join(doc_parts)
+                # 构建结构化上下文
+                context_parts = []
+                context_parts.append("=" * 60)
+                context_parts.append("RELEVANT MANIM DOCUMENTATION FOR REPAIR")
+                context_parts.append("=" * 60)
+                context_parts.append("")
+                
+                for source_type, docs in doc_groups.items():
+                    context_parts.append(f"[{source_type.upper()} DOCUMENTS]")
+                    context_parts.append("-" * 40)
+                    
+                    for i, doc in enumerate(docs, 1):
+                        context_parts.append(f"\n[Doc {i}] Source: {doc['source_path']}")
+                        context_parts.append(f"Relevance Score: {doc['relevance_score']:.2f}")
+                        context_parts.append(f"Content Preview:")
+                        context_parts.append(doc['content'][:400])  # 从800降到400
+                        context_parts.append("")
+                    
+                    context_parts.append("")
+                
+                context_parts.append("=" * 60)
+                context_parts.append("INSTRUCTIONS:")
+                context_parts.append("Use the above documentation to guide your repair decisions.")
+                context_parts.append("Pay special attention to API signatures and parameter names.")
+                context_parts.append("=" * 60)
+                
+                doc_context = "\n".join(context_parts)
                 logger.info(
-                    "[repair] built doc context with %d unique docs (total length: %d chars)",
+                    "[repair] built structured doc context with %d unique docs (total length: %d chars)",
                     len(top_docs),
                     len(doc_context),
                 )
@@ -409,35 +452,61 @@ class RepairAgent:
         }
     
     def _generate_search_queries_from_issue(self, issue: dict) -> list[str]:
-        """从 issue 生成搜索查询"""
+        """从 issue 生成搜索查询（优化版：最多10个）"""
         queries = []
         root_cause = issue.get("rootCauseLabel", "")
         message = issue.get("normalizedMessage", "").lower()
+        code_snippet = issue.get("codeSnippet", "")
         
-        # 根据根因生成查询
+        # 规则1: 无效参数错误 → 提取参数名和类名
         if "invalid_keyword" in root_cause or "unexpected" in message:
-            # 提取参数名
             param_match = re.search(r"'(\w+)'", message)
+            class_match = re.search(r'(\w+)\.__init__', message)
             if param_match:
                 param_name = param_match.group(1)
                 queries.append(f"{param_name} parameter")
                 queries.append(f"{param_name} kwarg")
+                if class_match:
+                    class_name = class_match.group(1)
+                    queries.append(f"{class_name} {param_name}")
         
+        # 规则2: 未定义名称 → 直接使用名称并添加上下文
         elif "undefined_name" in root_cause:
             name = issue.get("normalizedMessage", "")
             if name:
                 queries.append(name)
+                queries.append(f"{name} manim")
         
+        # 规则3: LaTeX 错误 → 搜索 MathTex CJK 和 Text
         elif "latex" in message or "mathtex" in message:
             queries.append("MathTex CJK text")
             queries.append("Tex Chinese characters")
+            queries.append("MathTex vs Text")
         
+        # 规则4: 坐标轴相关 → 搜索 Axes 和相关参数
         elif "axes" in message or "coordinate" in message:
             queries.append("Axes")
             queries.append("coordinate system")
+            queries.append("Axes parameters")
         
-        # 添加通用查询
+        # 规则5: 动画相关错误
+        elif "animation" in message or "mobject" in message:
+            queries.append("Animation Mobject")
+            queries.append("Transform animation")
+        
+        # 规则6: 从代码片段提取线索
+        if code_snippet:
+            # 提取类名
+            class_names = re.findall(r'(\w+)\(', code_snippet)
+            for class_name in class_names[:2]:  # 只取前2个
+                if class_name not in ["self", "print", "len", "range"]:
+                    queries.append(class_name)
+                    break  # 只添加一个最有价值的
+        
+        # 规则7: 添加通用查询
         if root_cause:
             queries.append(root_cause)
         
-        return list(set(queries))  # 去重
+        # 去重并限制数量（保持顺序）
+        unique_queries = list(dict.fromkeys(queries))
+        return unique_queries[:10]  # 最多10个查询

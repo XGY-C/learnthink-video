@@ -134,10 +134,18 @@ class {scene_class_name}(Scene):
 
         system_prompt = (
             "You are an expert Manim CE v0.20.1 code generator. "
-            "Output a complete single Python file only. "
-            "Requirements: use scene object types (formula/text/annotation/shape), "
-            "prefer MathTex for formulas, avoid unresolved placeholders, and keep code runnable. "
-            "Do not use Axes(height=..., width=...); use Axes(y_length=..., x_length=...) instead."
+            "Output a complete single Python file only.\n\n"
+            "Requirements:\n"
+            "- Use scene object types (formula/text/annotation/shape) to select appropriate Mobjects\n"
+            "- Prefer MathTex for formulas, Text for plain language\n"
+            "- Avoid unresolved placeholders - all objects must be concrete Manim primitives\n"
+            "- Keep code runnable and well-structured\n"
+            "- Do not use Axes(height=..., width=...); use Axes(y_length=..., x_length=...) instead\n"
+            "- Include: from manim import *, from typing import Dict, config settings, safe_duration function\n"
+            "- Each scene should have proper FadeIn/FadeOut animations with safe_duration\n\n"
+            "Output format:\n"
+            "- Return Python code only, no explanations or markdown\n"
+            "- Code must be directly executable without modifications"
             + ("\n\n" + redline_block if redline_block else "")
         )
         user_prompt = (
