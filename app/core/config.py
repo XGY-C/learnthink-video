@@ -2,6 +2,12 @@ from functools import lru_cache
 from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
+
+# 获取项目根目录的绝对路径 (即 app 文件夹的上一级)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# 定义外部存储根目录 (项目目录的同级目录下的 video/runtime)
+EXTERNAL_RUNTIME_ROOT = PROJECT_ROOT.parent / "video" / "runtime"
 
 
 class Settings(BaseSettings):
@@ -15,7 +21,8 @@ class Settings(BaseSettings):
     log_to_file: bool = Field(default=False, alias="LOG_TO_FILE")
     use_json_log: bool = Field(default=False, alias="USE_JSON_LOG")
 
-    runtime_root: Path = Field(default=Path("runtime/tasks"), alias="RUNTIME_ROOT")
+    # 使用计算好的绝对路径作为默认值
+    runtime_root: Path = Field(default=EXTERNAL_RUNTIME_ROOT / "tasks", alias="RUNTIME_ROOT")
     prompt_root: Path = Field(default=Path("prompts"), alias="PROMPT_ROOT")
     max_attempts: int = Field(default=6, alias="MAX_ATTEMPTS")
     enable_llm_assist: bool = Field(default=False, alias="ENABLE_LLM_ASSIST")
@@ -51,8 +58,11 @@ class Settings(BaseSettings):
     ffprobe_bin: str = Field(default="ffprobe", alias="FFPROBE_BIN")
     manim_bin: str = Field(default="manim", alias="MANIM_BIN")
     ffmpeg_bin: str = Field(default="ffmpeg", alias="FFMPEG_BIN")
-    audio_cache_root: Path = Field(default=Path("runtime/audio_cache"), alias="AUDIO_CACHE_ROOT")
+    audio_cache_root: Path = Field(default=EXTERNAL_RUNTIME_ROOT / "audio_cache", alias="AUDIO_CACHE_ROOT")
     max_av_duration_diff_sec: float = Field(default=0.5, alias="MAX_AV_DURATION_DIFF_SEC")
+
+    enable_render_cache: bool = Field(default=True, alias="ENABLE_RENDER_CACHE")
+    cache_root: Path = Field(default=EXTERNAL_RUNTIME_ROOT / "render_cache", alias="CACHE_ROOT")
 
 
 @lru_cache(maxsize=1)
@@ -60,4 +70,5 @@ def get_settings() -> Settings:
     settings = Settings()
     settings.runtime_root.mkdir(parents=True, exist_ok=True)
     settings.audio_cache_root.mkdir(parents=True, exist_ok=True)
+    settings.cache_root.mkdir(parents=True, exist_ok=True)
     return settings

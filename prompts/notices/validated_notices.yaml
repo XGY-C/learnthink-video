@@ -236,3 +236,453 @@
     verified_attempts: 1
     success_rate: 1.0
   status: validated
+- id: NOTICE_0009
+  issue_type: invalid_kwargs
+  essence: 该问题属于 invalid_kwargs 类型，通常由同类模式反复触发。
+  root_cause: Mobject.__init__() got an unexpected keyword argument 'side_length'
+  never_do:
+  - 不要在未确认根因前反复试错同一路径。
+  guardrails:
+  - 针对根因 invalid_kwargs 增加稳定性防护，避免同类错误再次出现。
+  trigger_signals:
+  - Mobject.__init__() got an unexpected keyword argument 'side_length'
+  preferred_pattern: 针对根因 invalid_kwargs 增加稳定性防护，避免同类错误再次出现。
+  source: heuristic
+  confidence: 0.75
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0010
+  issue_type: site_import_keyboard_interrupt
+  essence: Python解释器初始化site模块时被键盘中断（KeyboardInterrupt）导致导入失败，属于环境信号干扰问题。
+  root_cause: 在Python启动加载site模块过程中，用户或系统发送了KeyboardInterrupt信号，导致初始化中断。
+  never_do:
+  - 不要在Python程序启动或导入阶段按下Ctrl+C或发送中断信号
+  - 避免在系统负载过高或资源不足时运行Python脚本，以防止信号延迟触发中断
+  guardrails:
+  - 运行渲染脚本前，确保终端无意外按键操作，最好通过非交互式方式执行（如使用命令行参数）
+  - 若需长时间运行，考虑使用子进程或守护进程执行渲染任务，避免手动中断
+  trigger_signals:
+  - '出现Fatal Python error: init_import_site: Failed to import the site module'
+  - 日志中伴随KeyboardInterrupt异常
+  preferred_pattern: 在启动脚本前确保环境稳定，避免任何可能触发KeyboardInterrupt的操作；使用子进程或守护进程运行渲染任务以隔离手动中断风险
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0011
+  issue_type: keyboard_interrupt
+  essence: NameError通常由未导入必要的模块或变量未定义引起
+  root_cause: 在代码中使用 time 但未导入 time 模块
+  never_do:
+  - 不要在未导入模块的情况下直接使用其函数
+  guardrails:
+  - 在脚本开头导入所有可能用到的模块
+  - 使用显式的 import 语句而非依赖隐式全局
+  trigger_signals:
+  - 'NameError: name ''time'' is not defined'
+  preferred_pattern: 使用 time.sleep() 前先 import time
+  source: llm
+  confidence: 0.95
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0012
+  issue_type: type_error_float_as_int
+  essence: 在需要整数参数的地方传递了浮点数，导致类型错误
+  root_cause: 代码中使用了浮点数作为需要整数参数的输入，例如 range() 或索引操作
+  never_do:
+  - 不要在需要整数参数的地方直接使用浮点数，如 range(0.5
+  guardrails:
+  - 使用 int() 显式转换浮点数为整数，或确保变量类型为整数
+  - 在循环或索引前检查参数是否为整数类型
+  trigger_signals:
+  - 运行时出现 'float object cannot be interpreted as an integer
+  - TypeError 提及 float 与 integer 不兼容
+  preferred_pattern: 当需要整数参数时，先通过 int() 转换或使用整除 // 确保结果为整数
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0013
+  issue_type: negative_duration
+  essence: Manim中wait()方法要求duration必须为正数，传入负值会引发ValueError。
+  root_cause: 计算得到的wait()参数duration为负数，可能是动画结束时间早于开始时间或数学运算错误导致。
+  never_do:
+  - 不要传入负数或零作为wait()的duration参数
+  - 避免使用未经检查的表达式直接计算duration
+  guardrails:
+  - 调用wait()前检查duration > 0，否则跳过或替换为默认正数
+  - 在duration计算后添加保护：duration = max(0.1, duration
+  trigger_signals:
+  - 错误信息包含'duration must be positive
+  - 错误信息包含'<= 0 seconds
+  preferred_pattern: 每次计算duration后，使用max(0.1, duration)确保为正数，再传入wait()。
+  source: llm
+  confidence: 0.9
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0014
+  issue_type: none_mobject_animate
+  essence: 尝试对None对象调用.animate方法导致AttributeError
+  root_cause: 变量penalty_part可能为None，但代码直接对其调用.animate
+  never_do:
+  - 不要假设Mobject对象非空就直接调用.animate
+  guardrails:
+  - 在调用.animate之前检查对象是否为None
+  trigger_signals:
+  - 错误信息包含'NoneType' object has no attribute 'animate
+  preferred_pattern: 在调用Mobject的.animate方法前，先判断对象是否为None，如果是则跳过动画或创建默认对象
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0015
+  issue_type: variable_not_defined
+  essence: Python局部变量在赋值前被引用导致UnboundLocalError，通常是由于变量作用域混淆或条件分支中变量未定义。
+  root_cause: 局部变量draw_tree在if/else分支中未被正确定义，导致在后续代码中访问时尚未赋值。
+  never_do:
+  - 不要在条件分支中只覆盖变量而不保证所有路径都赋值
+  - 不要使用未初始化的局部变量
+  guardrails:
+  - 确保所有条件分支都显式初始化局部变量
+  - 对于复杂逻辑，先声明变量为None或默认值，再根据条件修改
+  trigger_signals:
+  - UnboundLocalError
+  - cannot access local variable '...' where it is not associated with a value
+  preferred_pattern: 在函数入口处为所有可能用到的局部变量赋予初始值（如None），再根据条件逻辑赋值，最后使用前检查是否为None。
+  source: llm
+  confidence: 0.9
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0016
+  issue_type: play_without_animations
+  essence: 调用Scene.play时未提供任何动画对象导致ValueError
+  root_cause: play方法被调用时传入的动画列表为空或未传入任何动画参数
+  never_do:
+  - 不要调用play()时不传任何动画对象
+  - 不要在生成动画列表后不检查是否为空就直接传入play
+  guardrails:
+  - 在调用play前确保至少有一个动画对象
+  - 如果动画列表可能为空，使用条件判断避免调用play
+  trigger_signals:
+  - '运行时出现ValueError: Called Scene.play with no animations'
+  - self.play()调用时括号内为空或传入的列表长度为0
+  preferred_pattern: '调用play时始终传入非空动画参数，若动画列表可为空则使用if list: self.play(*list)或self.play()仅当有动画时'
+  source: llm
+  confidence: 0.9
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0017
+  issue_type: negative_wait_duration
+  essence: Manim的wait()动画方法要求持续时间为正数，负值会导致ValueError渲染失败
+  root_cause: 计算生成的动画等待时间出现了负数，违反了Manim的参数约束
+  never_do:
+  - 不要在wait()中传入负数或计算可能导致负数的表达式
+  - 不要生成时长小于等于0的动画等待
+  guardrails:
+  - 在调用wait()之前检查duration参数是否为正数，若为负数则取绝对值或设为默认正数
+  - 对计算duration的表达式使用max(0.01, computed_value)确保最小正数
+  trigger_signals:
+  - 错误信息包含'wait() duration must be a positive number
+  - 错误信息包含'negative value'或'<= 0
+  - 日志中duration值为负数
+  preferred_pattern: '所有对wait()的调用，duration参数必须大于0，推荐使用max(0.01, computed_value)或if
+    duration <= 0: duration = 0.01'
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0018
+  issue_type: bar_chart_invalid_kwargs
+  essence: BarChart对象构造函数不支持未知的关键字参数，导致TypeError
+  root_cause: 在调用BarChart时传入了未定义的参数'bar_label_scale_val
+  never_do:
+  - 不要向BarChart传递未在文档中列出的参数
+  guardrails:
+  - 使用BarChart前查阅官方文档确认支持的关键字参数
+  - 为自定义参数添加有效性预检查或fallback
+  trigger_signals:
+  - 'TypeError: Mobject.__init__() got an unexpected keyword argument'
+  preferred_pattern: 对于BarChart，只使用官方文档中明确列出的参数，如bar_names、max_value、colors等
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0019
+  issue_type: latex_compilation_failed
+  essence: LaTeX编译失败主要由在LaTeX环境中使用了不支持的中文字符引起。
+  root_cause: 在MathTex等LaTeX渲染对象中直接包含了中文字符，而默认的LaTeX编译器不支持CJK字符。
+  never_do:
+  - 不要在MathTex、Tex等LaTeX渲染对象中直接写入中文文本。
+  - 不要在不配置CJK支持的情况下使用xelatex处理含中文的LaTeX代码。
+  guardrails:
+  - 将所有中文文本改用Text()对象渲染。
+  - 如需在LaTeX中使用中文，必须手动配置xelatex编译器并加载CJK宏包。
+  trigger_signals:
+  - 错误信息中包含'Unicode character'和具体的中文字符。
+  - 错误信息中出现'latex error converting to dvi'或'xelatex output format must be'。
+  preferred_pattern: 遇到中文文本时，优先使用Text()代替MathTex()或Tex()，避免在LaTeX上下文中直接引入中文字符。
+  source: llm
+  confidence: 0.9
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0020
+  issue_type: play_with_no_animations
+  essence: 调用Scene.play()时传入的动画列表为空，导致无动画可播放而抛出ValueError
+  root_cause: 生成动画列表的列表推导式中，源列表net_dynamic可能为空，导致生成的动画列表为空
+  never_do:
+  - 不要直接使用空列表作为play()的参数
+  - 不要在未检查列表是否为空的情况下将列表推导式结果直接传给play
+  guardrails:
+  - 在调用play()之前检查动画列表是否为空，若非空才调用
+  - '使用条件判断：if animations: self.play(*animations'
+  trigger_signals:
+  - 'ValueError: Called Scene.play with no animations'
+  - play()的参数列表为空或长度为0
+  preferred_pattern: '在调用self.play()前，先检查动画列表是否非空，只有非空时才执行play调用，即 if animations:
+    self.play(*animations)。'
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0021
+  issue_type: latex_compilation_failed
+  essence: LaTeX编译失败常见于MathTex中嵌入中文或使用不支持的输出格式参数
+  root_cause: MathTex中包含了中文等Unicode字符，或xelatex输出格式参数设置错误
+  never_do:
+  - 不要在MathTex中包含中文或其他非ASCII Unicode字符（除数学符号外）
+  - 不要为xelatex指定除'pdf'或'xdv'之外的输出格式参数
+  guardrails:
+  - 在调用MathTex之前检查文本中是否包含CJK字符，如有则改用Text
+  - 使用set_xelatex_output_format时确保参数为'pdf'或'xdv
+  trigger_signals:
+  - 错误信息中包含'Unicode character'或'xelatex output format must be
+  - 'LaTeX编译返回非零状态且日志中包含''LaTeX Error: Unicode character'
+  preferred_pattern: 遇到含中文的公式时使用Text()渲染，并确保xelatex输出格式参数正确设置为'pdf'或'xdv
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0022
+  issue_type: latex_compilation_failed
+  essence: LaTeX编译错误通常由在数学公式或LaTeX环境中插入中文等Unicode字符引起
+  root_cause: 在MathTex或LaTeX文本中使用了中文，导致Unicode字符不被允许
+  never_do:
+  - 不要在MathTex/LaTeX环境中放入中文文本
+  - 避免在需要渲染的字符串中直接包含非ASCII字符
+  guardrails:
+  - 中文内容应使用Text()或其它非LaTeX渲染器显示
+  - 所有用户提供的中文文本需先检查是否用于LaTeX环境
+  trigger_signals:
+  - 错误信息包含'Unicode character not allowed'或'U+6DF1'等中文字符编码
+  - 出现'latex error converting to dvi'日志
+  preferred_pattern: 遇到中文文本时使用Text()而非MathTex()，或通过转义/预处理移除中文
+  source: llm
+  confidence: 0.9
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0023
+  issue_type: submobject_index_error
+  essence: 对数学公式的submobject列表进行切片时，索引溢出导致IndexError
+  root_cause: 硬编码切片loss_formula[1][6:]未检查submobject实际长度，导致索引越界
+  never_do:
+  - 不要直接对MathTex对象的submobject列表进行硬编码索引切片而不检查长度
+  guardrails:
+  - 在切片前使用len()检查submobject列表长度，确保索引在范围内
+  - 使用math_tex[0:n]形式时，保证n不超过子对象总数
+  trigger_signals:
+  - 'IndexError: list index out of range'
+  - 代码中出现[...][...]嵌套索引且涉及[6:]等硬编码切片
+  preferred_pattern: 对MathTex对象进行submobject切片前，先用len()获取长度，若切片索引可能越界则使用min(index,
+    len-1)或try-except保护
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0024
+  issue_type: render_timeout
+  essence: 渲染命令执行超时通常由复杂场景或资源不足导致，属于执行阶段稳定性问题
+  root_cause: 渲染命令执行时间超过预设的超时阈值
+  never_do:
+  - 不要忽略渲染超时限制，避免无限等待
+  - 不要一次渲染过于复杂或大尺寸的场景
+  guardrails:
+  - 设置合理的渲染超时时间并捕获TimeoutExpired异常
+  - 将长渲染任务拆分为多个短任务或异步处理
+  trigger_signals:
+  - '日志中出现''TimeoutExpired: render command exceeded timeout'
+  - 渲染过程无响应直至超时中断
+  preferred_pattern: 为渲染命令设置超时机制，并在超时时进行重试或降级处理
+  source: llm
+  confidence: 0.95
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0025
+  issue_type: invalid_rectangle_constructor_args
+  essence: Rectangle构造函数的color参数被多次赋值，通常是由于位置参数和关键字参数冲突或重复传递导致
+  root_cause: 在调用Rectangle(1.8, 1.2, color=GREEN)时，color被同时作为位置参数和关键字参数传入，或者color已被父类或其他装饰器隐性赋值
+  never_do:
+  - 不要在Rectangle构造函数中同时使用位置参数和关键字参数传递color
+  - 不要重复指定color参数，例如color=RED后再通过其他方式设置color
+  guardrails:
+  - 创建Rectangle时仅使用关键字参数传递color，并确保位置参数只包含width和height
+  - 检查是否有继承关系或装饰器导致color被二次注入
+  trigger_signals:
+  - 错误提示包含'got multiple values for argument'和'color
+  - 调用Rectangle时位置参数数量超过2个或color出现在不合理的位置
+  preferred_pattern: 统一使用Rectangle(width, height, color=GREEN)样式，避免在width/height参数中混入color，同时检查并确保无装饰器或父类自动设置color
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0026
+  issue_type: rectangle_color_conflict
+  essence: 在创建Rectangle时，color参数被重复指定（例如同时作为位置参数和关键字参数），导致Python TypeError。
+  root_cause: color参数在Rectangle构造函数中被同时作为位置参数和关键字参数传递，造成冲突。
+  never_do:
+  - 不要在Rectangle构造函数中混合使用位置参数和关键字参数指定color
+  - 不要假设color可以作为位置参数传递
+  guardrails:
+  - 创建Rectangle时，color等样式参数全部通过关键字参数传递
+  - 检查所有形状的构造函数，确保参数不重复
+  trigger_signals:
+  - 'TypeError: Rectangle.__init__() got multiple values for argument ''color'
+  - 调用形式如 Rectangle(1.8, 1.2, color=GREEN, ...) 时出现此错误
+  preferred_pattern: 使用 Rectangle(width, height, color=GREEN, fill_opacity=0.2) 时，color仅作为关键字参数出现，确保没有位置参数占用color。
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0027
+  issue_type: sound_file_not_found
+  essence: Manim的add_sound方法仅支持本地文件路径，传入HTTP URL会导致文件找不到错误
+  root_cause: 用户或代码向add_sound传入了网络URL而非本地文件路径
+  never_do:
+  - 不要将网络URL直接作为参数传给add_sound或Scene.add_sound
+  - 不要假设Manim会自动下载远程音频文件
+  guardrails:
+  - 使用音频前，先下载到本地临时目录，再传入本地路径
+  - 对传入路径进行校验，若为http/https开头则先下载
+  trigger_signals:
+  - 错误信息中包含'could not find'和'http://'或'https://
+  - 错误类型为OSError且消息中提及'sound file'和'URL
+  preferred_pattern: 需要添加音频时，先使用requests或urllib下载到本地临时文件，再将本地路径传给add_sound
+  source: llm
+  confidence: 0.9
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0028
+  issue_type: invalid_sound_file_path
+  essence: add_sound函数只接受本地文件路径，传入URL会导致OSError
+  root_cause: add_sound调用时传入了一个URL而非本地文件路径
+  never_do:
+  - 不要将URL直接作为add_sound的参数
+  - 不要假设add_sound支持网络路径
+  guardrails:
+  - 使用add_sound前确保路径是本地存在的文件
+  - 如果需要使用网络音频，先下载到本地再引用
+  trigger_signals:
+  - 错误信息包含'could not find'及URL
+  - 错误类型为OSError且提及add_sound
+  preferred_pattern: 使用add_sound时始终提供本地文件路径，若需使用URL则先用requests或urllib下载到临时目录
+  source: llm
+  confidence: 0.85
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0029
+  issue_type: value_error
+  essence: Python运行时解包错误，赋值变量数量与返回值数量不匹配。
+  root_cause: 代码中某处期望将函数或表达式返回的元组解包为2个变量，但实际返回了更多值。
+  never_do:
+  - 不要假设函数或表达式返回固定数量的值而不检查文档或实际返回。
+  - 不要忽略可能的多返回值情况，使用精确的解包变量数。
+  guardrails:
+  - 在调用可能返回变长元组的函数时，显式声明变量数量或使用占位符。
+  - 对不确定返回值的操作添加异常处理或断言。
+  trigger_signals:
+  - 错误信息包含 'too many values to unpack (expected 2
+  - 错误发生在赋值或函数返回后立即解包的语句处
+  preferred_pattern: 对于可能返回不定数量值的函数，使用 a, b, *rest = func() 或使用 result = func() 然后索引访问。
+  source: llm
+  confidence: 0.9
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0030
+  issue_type: bad_attribute_access
+  essence: 尝试访问对象不存在的属性会导致程序崩溃，常见于对图形对象属性名理解错误。
+  root_cause: 代码中使用了Rectangle对象不存在的'bottom_left'属性
+  never_do:
+  - 不要假定对象具有未在文档中列出的属性
+  - 避免直接使用非标准的命名约定属性
+  guardrails:
+  - 使用官方文档中列出的属性（如get_center, get_left等）
+  - 访问属性前使用hasattr()检查属性是否存在
+  trigger_signals:
+  - 'AttributeError: ''ClassName'' object has no attribute ''xxx'
+  preferred_pattern: 使用对象的标准方法（如obj.get_left()）或直接通过坐标计算所需位置，而非依赖未定义的属性名
+  source: llm
+  confidence: 0.95
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated
+- id: NOTICE_0031
+  issue_type: value_error
+  essence: LaTeX编译时MathTex中包含CJK字符会导致渲染失败，因为默认LaTeX引擎不支持非ASCII字符。
+  root_cause: MathTex中包含了中文文本，LaTeX无法处理CJK字符。
+  never_do:
+  - 不要在MathTex中放入中文或自然语言文本
+  guardrails:
+  - 使用Text()渲染中文文本，而非MathTex
+  - 需要数学公式与中文混合时，使用Text()中的tex参数
+  trigger_signals:
+  - 错误信息包含'latex error converting to dvi
+  - 错误信息包含'ValueError'且与MathTex有关
+  preferred_pattern: 对于包含中文文本的内容，应使用Text()并设置tex参数来嵌入数学公式，而不是使用MathTex()直接包含中文。
+  source: llm
+  confidence: 0.95
+  evidence:
+    verified_attempts: 1
+    success_rate: 1.0
+  status: validated

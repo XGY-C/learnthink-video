@@ -178,6 +178,7 @@ class RepairAgent:
 
     def run(self, code: str, issues: list[dict], attempt_no: int, notices: list[dict] | None = None) -> dict:
         current_code = code
+        deterministic_code: str | None = None
         target_ids: list[str] = []
         summary: list[str] = []
         strategy = "No-op repair"
@@ -414,6 +415,7 @@ class RepairAgent:
                     summary.append("Generic guard already present; escalate to LLM fallback for targeted fix")
 
         if escalate:
+            deterministic_code = current_code
             fallback_attempted = True
             llm_trace["escalated"] = True
             llm_code, llm_trace_result = self._try_llm_repair(
@@ -437,7 +439,7 @@ class RepairAgent:
             patchSummary=summary or ["No patch applied"],
         )
 
-        return {
+        result: dict = {
             "code": current_code,
             "llmTrace": llm_trace,
             "metadata": {
@@ -450,6 +452,11 @@ class RepairAgent:
                 "fallbackReason": fallback_reason,
             },
         }
+
+        if deterministic_code is not None:
+            result["deterministicCode"] = deterministic_code
+
+        return result
     
     def _generate_search_queries_from_issue(self, issue: dict) -> list[str]:
         """从 issue 生成搜索查询（优化版：最多10个）"""

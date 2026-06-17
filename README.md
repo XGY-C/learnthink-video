@@ -12,15 +12,25 @@
 START
   -> initialize_task
   -> plan_request
-  -> load_notices
-  -> generate_code
-  -> render_code
-      ├─ 成功 -> upload_video -> END
-      └─ 失败  -> diagnose_errors
-                 -> validate_previous_fix
-                 -> decide_next_step
-                      ├─ 重试 -> repair_code -> increment_attempt -> render_code
-                      └─ 失败 -> finalize_failure -> END
+  -> resolve_assets
+  -> check_cache
+      ├─ 命中 -> upload_video -> END
+      └─ 未命中 -> load_notices
+                 -> generate_code
+                 -> render_code
+                      ├─ 成功 -> validate_previous_fix
+                      │          -> compose_audio_timeline
+                      │          -> mux_audio_video
+                      │          -> media_qc
+                      │          -> save_cache
+                      │          -> upload_video -> END
+                      └─ 失败  -> diagnose_errors
+                                -> validate_previous_fix
+                                     ├─ 成功 -> compose_audio_timeline -> ...
+                                     └─ 重试 -> repair_code -> increment_attempt -> render_code
+               达上限 -> generate_fallback_video
+                          ├─ 成功 -> compose_audio_timeline -> ...
+                          └─ 失败 -> finalize_failure -> END
 ```
 ## 快速开始
 
@@ -49,12 +59,12 @@ cp .env.example .env
 
 **方案 B：手动启动 (PowerShell)**
 ```powershell
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
 ```
 
 **方案 C：手动启动 (CMD)**
 ```cmd
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
 ```
 *注：在 CMD 中请勿使用 `--reload-exclude "runtime/*"`，否则会因通配符展开导致报错。*
 
@@ -65,7 +75,7 @@ chmod +x scripts/deployment/start.sh
 ```
 
 ### 3. 验证
-访问 [http://localhost:8000/docs](http://localhost:8000/docs) 查看 API 文档。
+访问 [http://localhost:8005/docs](http://localhost:8005/docs) 查看 API 文档。
 
 ---
 

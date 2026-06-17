@@ -5,6 +5,7 @@ import time
 
 from app.graph.nodes import GraphNodes
 from app.graph.router import (
+    route_after_cache_check,
     route_after_codegen,
     route_after_audio_compose,
     route_after_asset_resolve,
@@ -13,6 +14,7 @@ from app.graph.router import (
     route_after_repair,
     route_after_render,
     route_after_validation,
+    route_after_fallback_video,
 )
 from app.graph.state import VideoGraphState
 
@@ -68,6 +70,7 @@ def build_video_graph(nodes: GraphNodes):
     graph.add_node("plan_request", _with_node_logging("plan_request", nodes.plan_request))
     graph.add_node("load_notices", _with_node_logging("load_notices", nodes.load_notices))
     graph.add_node("resolve_assets", _with_node_logging("resolve_assets", nodes.resolve_assets))
+    graph.add_node("check_cache", _with_node_logging("check_cache", nodes.check_cache))
     graph.add_node("generate_code", _with_node_logging("generate_code", nodes.generate_code))
     graph.add_node("render_code", _with_node_logging("render_code", nodes.render_code))
     graph.add_node("compose_audio_timeline", _with_node_logging("compose_audio_timeline", nodes.compose_audio_timeline))
@@ -77,6 +80,8 @@ def build_video_graph(nodes: GraphNodes):
     graph.add_node("validate_previous_fix", _with_node_logging("validate_previous_fix", nodes.validate_previous_fix))
     graph.add_node("repair_code", _with_node_logging("repair_code", nodes.repair_code))
     graph.add_node("increment_attempt", _with_node_logging("increment_attempt", nodes.increment_attempt))
+    graph.add_node("generate_fallback_video", _with_node_logging("generate_fallback_video", nodes.generate_fallback_video))
+    graph.add_node("save_cache", _with_node_logging("save_cache", nodes.save_cache))
     graph.add_node("upload_video", _with_node_logging("upload_video", nodes.upload_video))
     graph.add_node("finalize_failure", _with_node_logging("finalize_failure", nodes.finalize_failure))
 
@@ -87,8 +92,16 @@ def build_video_graph(nodes: GraphNodes):
         "resolve_assets",
         route_after_asset_resolve,
         {
-            "load_notices": "load_notices",
+            "check_cache": "check_cache",
             "finalize_failure": "finalize_failure",
+        },
+    )
+    graph.add_conditional_edges(
+        "check_cache",
+        route_after_cache_check,
+        {
+            "upload_video": "upload_video",
+            "load_notices": "load_notices",
         },
     )
     graph.add_edge("load_notices", "generate_code")
@@ -132,10 +145,11 @@ def build_video_graph(nodes: GraphNodes):
         "media_qc",
         route_after_qc,
         {
-            "upload_video": "upload_video",
+            "save_cache": "save_cache",
             "finalize_failure": "finalize_failure",
         },
     )
+    graph.add_edge("save_cache", "upload_video")
 
     graph.add_edge("diagnose_errors", "validate_previous_fix")
     graph.add_conditional_edges(
@@ -144,7 +158,7 @@ def build_video_graph(nodes: GraphNodes):
         {
             "compose_audio_timeline": "compose_audio_timeline",
             "repair_code": "repair_code",
-            "finalize_failure": "finalize_failure",
+            "generate_fallback_video": "generate_fallback_video",
         },
     )
     graph.add_conditional_edges(
@@ -152,10 +166,19 @@ def build_video_graph(nodes: GraphNodes):
         route_after_repair,
         {
             "increment_attempt": "increment_attempt",
-            "finalize_failure": "finalize_failure",
+            "generate_fallback_video": "generate_fallback_video",
         },
     )
     graph.add_edge("increment_attempt", "render_code")
+
+    graph.add_conditional_edges(
+        "generate_fallback_video",
+        route_after_fallback_video,
+        {
+            "compose_audio_timeline": "compose_audio_timeline",
+            "finalize_failure": "finalize_failure",
+        },
+    )
 
     graph.add_edge("upload_video", END)
     graph.add_edge("finalize_failure", END)

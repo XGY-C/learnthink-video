@@ -37,5 +37,8 @@ class VideoGraphState(TypedDict, total=False):
     final_video_path: str | None
     final_audio_path: str | None
 
+    cache_key: str | None
+    cache_hit: bool
+
     final_result: dict[str, Any] | None
     error_message: str | None
