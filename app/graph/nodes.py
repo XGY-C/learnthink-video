@@ -24,6 +24,8 @@ from app.tools.media_qc import MediaQC
 from app.tools.render_executor import RenderExecutor
 from app.tools.oss_uploader import OSSUploader
 from app.tools.manim_doc_search import ManimDocSearchTool
+from app.utils.cache import RenderCache
+from app.utils.repair_edit_transaction import create_repair_edit_transaction
 from app.utils.file_utils import write_json, write_text
 
 
@@ -118,6 +120,7 @@ class GraphNodes:
         self.av_muxer = AVMuxer(settings.ffmpeg_bin)
         self.media_qc_checker = MediaQC(settings.ffprobe_bin, settings.max_av_duration_diff_sec)
         self.oss_uploader = OSSUploader(settings)
+        self.cache = RenderCache(settings.cache_root) if settings.enable_render_cache else None
 
     def initialize_task(self, state: VideoGraphState) -> VideoGraphState:
         request = RenderRequest(**state["request_payload"])
@@ -144,6 +147,8 @@ class GraphNodes:
             "qc_report": None,
             "final_video_path": None,
             "final_audio_path": None,
+            "cache_key": None,
+            "cache_hit": False,
             "final_result": None,
             "error_message": None,
         }
@@ -206,6 +211,34 @@ class GraphNodes:
             }
 
         return {"audio_assets": assets, "bgm_asset": bgm_asset}
+
+    def check_cache(self, state: VideoGraphState) -> VideoGraphState:
+        if self.cache is None:
+            return {"cache_hit": False, "cache_key": None}
+
+        scene_ir = state.get("scene_ir") or {}
+        audio_assets = state.get("audio_assets") or []
+        key = RenderCache.compute_key(scene_ir, audio_assets)
+        cached_path = self.cache.get(key)
+
+        if cached_path:
+            logger.info(
+                "[cache] task=%s key=%s hit path=%s",
+                state["task_id"], key[:16], cached_path,
+            )
+            return {
+                "cache_key": key,
+                "cache_hit": True,
+                "final_video_path": str(cached_path),
+                "last_render_report": {
+                    "success": True,
+                    "video_path": str(cached_path),
+                },
+                "status": "CACHE_HIT",
+            }
+
+        logger.info("[cache] task=%s key=%s miss", state["task_id"], key[:16])
+        return {"cache_key": key, "cache_hit": False}
 
     def generate_code(self, state: VideoGraphState) -> VideoGraphState:
         """生成代码策略：
@@ -372,7 +405,7 @@ class GraphNodes:
             validation = {**validation, "candidateNotice": candidate_notice}
 
         result: VideoGraphState = {"last_validation": validation}
-        if validation.get("shouldLearn"):
+        if validation.get("shouldLearn") and hasattr(self.notice_repo, "load"):
             # Reload persisted notices so the next repair step sees newly learned constraints.
             result["notices"] = self.notice_repo.load()
         if render_succeeded:
@@ -392,11 +425,46 @@ class GraphNodes:
             notices=latest_notices,
         )
         repaired_code = repair_result["code"]
+        deterministic_code = repair_result.get("deterministicCode")
         change = _compute_code_change(previous_code, repaired_code)
 
         attempt_dir = self.task_repo.prepare_attempt(state["task_id"], state["attempt_no"])
         write_json(attempt_dir / "repair_decision.json", repair_result["metadata"])
         write_json(attempt_dir / "llm_repair_trace.json", repair_result.get("llmTrace") or {})
+
+        # Phase 1+2: journal reversible edits + compileall quality gate
+        tx_result = create_repair_edit_transaction(
+            attempt_dir=attempt_dir,
+            before_code=previous_code,
+            candidate_code=repaired_code,
+            repair_metadata=repair_result["metadata"],
+            llm_trace=repair_result.get("llmTrace") or {},
+            strategy="patch_first",
+        )
+
+        if not tx_result.get("passed") and deterministic_code and deterministic_code != repaired_code:
+            # Gate rejected LLM output; fall back to deterministic patch (pre-LLM) if available.
+            logger.warning(
+                "[repair] task=%s attempt=%s quality gate rejected candidate; falling back to deterministic code",
+                state["task_id"],
+                state["attempt_no"],
+            )
+            tx_result = create_repair_edit_transaction(
+                attempt_dir=attempt_dir,
+                before_code=previous_code,
+                candidate_code=deterministic_code,
+                repair_metadata={
+                    **repair_result["metadata"],
+                    "qualityGateFallback": "deterministicCode",
+                },
+                llm_trace=repair_result.get("llmTrace") or {},
+                strategy="patch_first",
+            )
+            if tx_result.get("passed"):
+                repaired_code = deterministic_code
+                change = _compute_code_change(previous_code, repaired_code)
+
+        quality_gate_failed = not tx_result.get("passed")
 
         next_code_file = self.task_repo.attempts_dir(state["task_id"]) / f"{state['attempt_no'] + 1:02d}" / "generated.py"
 
@@ -406,6 +474,8 @@ class GraphNodes:
         no_progress = bool(unresolved_ids) and not change["changed"]
         no_progress_streak = (state.get("no_progress_streak", 0) + 1) if no_progress else 0
         loop_guard_reason = None
+        if quality_gate_failed:
+            loop_guard_reason = "quality_gate_failed=compileall"
         if no_progress_streak >= 2:
             loop_guard_reason = f"no_progress_streak={no_progress_streak}; unresolved={','.join(unresolved_ids)}"
 
@@ -433,7 +503,7 @@ class GraphNodes:
         )
         return {
             "status": "REPAIRING",
-            "current_code": repaired_code,
+            "current_code": previous_code if quality_gate_failed else repaired_code,
             "last_repair_metadata": repair_result["metadata"],
             "last_repair_change": change,
             "no_progress_streak": no_progress_streak,
@@ -441,7 +511,11 @@ class GraphNodes:
             "loop_guard_reason": loop_guard_reason,
             "previous_issues": current_issues,
             "notices": latest_notices,
-            "error_message": "Repair loop detected with no effective code changes" if loop_guard_reason else state.get("error_message"),
+            "error_message": (
+                "Repair rejected by quality gate (compileall)" if quality_gate_failed else (
+                    "Repair loop detected with no effective code changes" if loop_guard_reason else state.get("error_message")
+                )
+            ),
         }
 
     def increment_attempt(self, state: VideoGraphState) -> VideoGraphState:
@@ -541,6 +615,20 @@ class GraphNodes:
 
         return {"qc_report": qc_report}
 
+    def save_cache(self, state: VideoGraphState) -> VideoGraphState:
+        if self.cache is None:
+            return {}
+
+        key = state.get("cache_key")
+        final_path = state.get("final_video_path")
+        if key and final_path:
+            self.cache.put(key, Path(final_path))
+            logger.info(
+                "[cache] task=%s key=%s saved path=%s",
+                state["task_id"], key[:16], final_path,
+            )
+        return {}
+
     def upload_video(self, state: VideoGraphState) -> VideoGraphState:
         report = state["last_render_report"]
         object_key = self._build_oss_object_key(state["task_id"], RenderRequest(**state["request_payload"]).output_policy.file_base_name)
@@ -594,6 +682,103 @@ class GraphNodes:
             latest_issue_ids=[issue["issueId"] for issue in state.get("current_issues", [])],
         )
         return {"status": "FAILED", "final_result": final, "error_message": final["message"]}
+
+    def generate_fallback_video(self, state: VideoGraphState) -> VideoGraphState:
+        """最后的兜底方案：生成纯文本视频。
+        当多次修复都失败或无进展时，放弃代码修复，直接生成最简单的视频。
+        """
+        task_id = state["task_id"]
+        attempt_no = state.get("attempt_no", 0)
+        
+        # 生成超级简单的兜底 Manim 代码：只显示文本
+        scene_ir = state.get("scene_ir") or {}
+        project_brief = scene_ir.get("projectBrief") or {}
+        video_spec = project_brief.get("videoSpec") or {}
+        
+        background = str(video_spec.get("background") or "#0B1020")
+        fps = int(video_spec.get("fps") or 30)
+        width, height = 1920, 1080
+        
+        # 从原始请求或场景获取标题
+        request_payload = state.get("request_payload") or {}
+        title = request_payload.get("subject") or "Video"
+        
+        fallback_code = f'''from manim import *
+
+config.background_color = {background!r}
+config.pixel_width = {width}
+config.pixel_height = {height}
+config.frame_rate = {fps}
+
+class FallbackScene(Scene):
+    def construct(self):
+        title = Text({title!r}, font_size=72, color=WHITE)
+        subtitle = Text("(渲染已降级到文本模式)", font_size=36, color=GREY_B)
+        subtitle.shift(DOWN * 1.5)
+        
+        self.play(FadeIn(title), run_time=0.5)
+        self.wait(1.0)
+        self.play(FadeIn(subtitle), run_time=0.5)
+        self.wait(2.0)
+        self.play(FadeOut(title, subtitle), run_time=0.5)
+'''
+        
+        logger.info(
+            "[fallback_video] task=%s attempt=%s generating minimal fallback video",
+            task_id,
+            attempt_no,
+        )
+        
+        # 直接渲染兜底代码（不再修复循环，仅一次尝试）
+        attempt_dir = self.task_repo.prepare_attempt(task_id, attempt_no)
+        code_file = attempt_dir / "generated.py"
+        code_file.write_text(fallback_code, encoding="utf-8")
+        
+        render_report = self.render_executor.run(code_file, attempt_dir, scene_class="FallbackScene")
+        
+        if render_report.get("success"):
+            logger.info(
+                "[fallback_video] task=%s fallback video rendered successfully",
+                task_id,
+            )
+            self.task_repo.save_request_artifact(
+                task_id,
+                "fallback_render_report.json",
+                render_report,
+            )
+            return {
+                "status": "FALLBACK_SUCCESS",
+                "last_render_report": render_report,
+                "current_issues": [],
+                "error_message": f"Video rendered using fallback method after {attempt_no} failed attempts",
+            }
+        else:
+            logger.warning(
+                "[fallback_video] task=%s fallback video also failed, giving up",
+                task_id,
+            )
+            self.task_repo.save_request_artifact(
+                task_id,
+                "fallback_render_report.json",
+                render_report,
+            )
+            return {
+                "status": "FALLBACK_FAILED",
+                "last_render_report": render_report,
+                "current_issues": [
+                    {
+                        "issueId": "FALLBACK_001",
+                        "stage": "render",
+                        "errorType": "FallbackRenderError",
+                        "rootCauseLabel": "fallback_video_render_failed",
+                        "normalizedMessage": render_report.get("error") or "fallback video rendering failed",
+                        "signature": "fallback-render-failure",
+                        "confidence": 0.95,
+                        "evidenceLines": [render_report.get("error") or "unknown error"],
+                    }
+                ],
+                "error_message": "Even fallback video failed to render",
+            }
 
     def _save_task_state(
         self,

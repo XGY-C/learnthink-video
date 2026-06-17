@@ -13,21 +13,88 @@ logger = logging.getLogger(__name__)
 
 
 class ErrorDiagnoser:
-    # 仅保留 100% 确定的 Python 标准错误模式
-    # 所有 Manim 特定错误、复杂错误、环境错误都交给 LLM 诊断
+    # P0：确定性规则诊断（无需 LLM 也能命中）
+    # 说明：只收录“匹配即基本可确定根因”的模式；其余仍交给 LLM（若启用）。
     COMMON_PATTERNS = [
-        # Python 语法错误（100% 确定）
+        # --- Manim / 运行时 P0 ---
+        (
+            re.compile(r"ManimError: (?P<msg>Cannot animate non-mobject objects\.?|Animation only works on Mobjects\.?)(?:\n.*)?"),
+            "runtime",
+            "ManimError",
+            "animate_non_mobject",
+        ),
+        (
+            re.compile(r"(?:ValueError|ManimError): (?P<msg>Cannot interpolate between different types of mobjects.*)"),
+            "runtime",
+            "ManimError",
+            "incompatible_mobject_transform",
+        ),
+        (
+            re.compile(r"RuntimeError: (?P<msg>latex failed.*|latex error converting to dvi.*|LaTeX Error:.*)", re.IGNORECASE),
+            "runtime",
+            "LatexError",
+            "latex_compilation_failed",
+        ),
+        (
+            re.compile(r"ValueError: (?P<msg>(?:Animation\s+)?run_time\s*(?:must be positive|<=\s*0\s*is not allowed|cannot be negative).*)", re.IGNORECASE),
+            "runtime",
+            "ValueError",
+            "invalid_run_time",
+        ),
+        (
+            re.compile(r"TypeError: (?P<msg>.*__init__\(\) got an unexpected keyword argument.*)", re.IGNORECASE),
+            "runtime",
+            "TypeError",
+            "invalid_keyword_in_mobject_initialization",
+        ),
+
+        # --- 环境 / 编码器 ---
+        (
+            re.compile(r"(?P<msg>ffmpeg: command not found|PermissionError: \[Errno 13\].*'ffmpeg'|CalledProcessError: Command '\['ffmpeg'.*returned non-zero exit status.*)", re.IGNORECASE),
+            "ffmpeg",
+            "FFmpegError",
+            "ffmpeg_related",
+        ),
+
+        # --- 引用与索引 ---
+        (
+            re.compile(r"KeyError: (?P<msg>'[^']+'|\"[^\"]+\"|[^\n]+)"),
+            "runtime",
+            "KeyError",
+            "missing_key_reference",
+        ),
+        (
+            re.compile(r"IndexError: (?P<msg>.+)"),
+            "runtime",
+            "IndexError",
+            "index_out_of_range",
+        ),
+
+        # --- 资源问题 ---
+        (
+            re.compile(r"MemoryError: (?P<msg>.+)"),
+            "runtime",
+            "MemoryError",
+            "insufficient_memory",
+        ),
+        (
+            re.compile(r"OSError: (?P<msg>\[Errno 28\] No space left on device.*)", re.IGNORECASE),
+            "runtime",
+            "OSError",
+            "disk_full",
+        ),
+
+        # --- Python 标准错误（确定性） ---
         (re.compile(r"SyntaxError: (?P<msg>.+)"), "parse", "SyntaxError", "python_syntax_error"),
-        
-        # Python 导入错误（100% 确定）
         (re.compile(r"ImportError: (?P<msg>.+)"), "import", "ImportError", "missing_import"),
         (re.compile(r"ModuleNotFoundError: (?P<msg>.+)"), "import", "ModuleNotFoundError", "missing_module"),
-        
-        # Python 名称错误（100% 确定）
         (re.compile(r"NameError: name '(?P<msg>.+)' is not defined"), "runtime", "NameError", "undefined_name"),
-        
-        # Python 文件不存在（100% 确定）
+        (re.compile(r"AttributeError: (?P<msg>.+)"), "runtime", "AttributeError", "bad_attribute_access"),
+        (re.compile(r"ValueError: (?P<msg>.+)"), "runtime", "ValueError", "value_error"),
         (re.compile(r"FileNotFoundError: (?P<msg>.+)"), "runtime", "FileNotFoundError", "missing_file"),
+
+        # --- 兜底：泛 Manim 错误（最后匹配，避免吞掉更具体规则） ---
+        (re.compile(r"ManimError: (?P<msg>.+)"), "runtime", "ManimError", "manim_runtime_error"),
     ]
 
     def __init__(self, llm_client: BaseLLMClient | None = None, enable_llm_fallback: bool = True) -> None:
