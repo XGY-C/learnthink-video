@@ -11,31 +11,38 @@ from app.graph.router import (
 
 
 def test_route_after_render_success():
-    state = {"last_render_report": {"success": True}, "attempt_no": 1, "max_attempts": 3}
+    state = {"last_render_report": {"success": True}, "attempt_no": 1, "max_attempts": 6}
     assert route_after_render(state) == "validate_previous_fix"
 
 
 def test_route_after_render_retry():
-    state = {"last_render_report": {"success": False}, "attempt_no": 1, "max_attempts": 3}
+    state = {"last_render_report": {"success": False}, "attempt_no": 1, "max_attempts": 6}
     assert route_after_render(state) == "diagnose_errors"
 
 
-def test_route_after_render_fail():
-    state = {"last_render_report": {"success": False}, "attempt_no": 3, "max_attempts": 3}
-    assert route_after_render(state) == "finalize_failure"
+def test_route_after_render_last_attempt():
+    state = {"last_render_report": {"success": False}, "attempt_no": 6, "max_attempts": 6}
+    assert route_after_render(state) == "diagnose_errors"
+
+
+def test_route_after_render_exceeds_max():
+    state = {"last_render_report": {"success": False}, "attempt_no": 7, "max_attempts": 6}
+    assert route_after_render(state) == "generate_fallback_video"
 
 
 def test_route_after_validation():
     assert route_after_validation({"last_render_report": {"success": True}}) == "compose_audio_timeline"
-    assert route_after_validation({"attempt_no": 1, "max_attempts": 3}) == "repair_code"
-    assert route_after_validation({"attempt_no": 3, "max_attempts": 3}) == "finalize_failure"
-    assert route_after_validation({"attempt_no": 1, "max_attempts": 3, "loop_guard_reason": "no_progress"}) == "finalize_failure"
+    assert route_after_validation({"attempt_no": 1, "max_attempts": 6}) == "repair_code"
+    assert route_after_validation({"attempt_no": 6, "max_attempts": 6}) == "repair_code"
+    assert route_after_validation({"attempt_no": 7, "max_attempts": 6}) == "generate_fallback_video"
+    assert route_after_validation({"attempt_no": 1, "max_attempts": 6, "loop_guard_reason": "no_progress"}) == "generate_fallback_video"
 
 
 def test_route_after_repair():
-    assert route_after_repair({"attempt_no": 1, "max_attempts": 3}) == "increment_attempt"
-    assert route_after_repair({"attempt_no": 3, "max_attempts": 3}) == "finalize_failure"
-    assert route_after_repair({"attempt_no": 1, "max_attempts": 3, "loop_guard_reason": "no_progress"}) == "finalize_failure"
+    assert route_after_repair({"attempt_no": 1, "max_attempts": 6}) == "increment_attempt"
+    assert route_after_repair({"attempt_no": 6, "max_attempts": 6}) == "increment_attempt"
+    assert route_after_repair({"attempt_no": 7, "max_attempts": 6}) == "generate_fallback_video"
+    assert route_after_repair({"attempt_no": 1, "max_attempts": 6, "loop_guard_reason": "no_progress"}) == "generate_fallback_video"
 
 
 def test_route_after_asset_resolve():

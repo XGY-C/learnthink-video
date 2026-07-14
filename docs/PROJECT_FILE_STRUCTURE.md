@@ -27,7 +27,8 @@ learnthink-video/
 │
 ├── runtime/                      # 运行时数据（不提交到 Git）
 │   ├── tasks/                    # 任务执行文件
-│   └── audio_cache/              # 音频缓存
+│   ├── audio_cache/              # 音频下载缓存
+│   └── render_cache/             # 渲染结果缓存（内容寻址）
 │
 ├── vendor-docs/                  # 第三方文档
 │   └── manim/                    # Manim 文档
@@ -105,7 +106,8 @@ learnthink-video/
 | 子目录 | 说明 |
 |--------|------|
 | `tasks/` | 每个任务的执行文件、日志、生成的代码和视频 |
-| `audio_cache/` | 音频文件缓存 |
+| `audio_cache/` | 音频文件下载缓存 |
+| `render_cache/` | 渲染结果内容寻址缓存（SHA256 键） |
 
 **注意**: 此目录下的内容在 `.gitignore` 中被忽略，仅保留 `.gitkeep` 文件以维持目录结构。
 

@@ -4,7 +4,7 @@
 >
 > 文档基于代码事实编写，重点覆盖 `app/` 下当前生效实现。
 >
-> 更新时间：2026-04-07
+> 更新时间：2026-05-24
 
 ---
 
@@ -106,14 +106,20 @@ Client
 
 图定义文件：`app/graph/builder.py`
 
-节点顺序（成功路径）：
+节点顺序（成功路径 + 缓存命中）：
 1. `initialize_task`
 2. `plan_request`
-3. `load_notices`
-4. `generate_code`
-5. `render_code`
-6. `upload_video`
-7. END
+3. `resolve_assets`
+4. `check_cache` → 命中则跳过渲染，直接到 `upload_video`
+5. `load_notices`
+6. `generate_code`
+7. `render_code`
+8. `compose_audio_timeline`
+9. `mux_audio_video`
+10. `media_qc`
+11. `save_cache`
+12. `upload_video`
+13. END
 
 失败循环路径：
 1. `render_code` 失败后进入 `diagnose_errors`
@@ -122,16 +128,24 @@ Client
 4. `repair_code`
 5. `increment_attempt`
 6. 回到 `render_code`
-7. 达到上限则 `finalize_failure`
+7. 达到上限则 `generate_fallback_video`
 
 条件路由：
-- `route_after_render`（`app/graph/router.py`）
-  - `success` -> `upload_video`
-  - 达上限 -> `finalize_failure`
-  - 否则 -> `diagnose_errors`
+- `route_after_asset_resolve`：失败 → `finalize_failure`，成功 → `check_cache`
+- `route_after_cache_check`（`app/graph/router.py`）
+  - 命中 → `upload_video`
+  - 未命中 → `load_notices`
+- `route_after_render`
+  - `success` → `validate_previous_fix`
+  - 达上限 → `generate_fallback_video`
+  - 否则 → `diagnose_errors`
 - `route_after_validation`
-  - 达上限 -> `finalize_failure`
-  - 否则 -> `repair_code`
+  - 成功 → `compose_audio_timeline`
+  - loop_guard 或达上限 → `generate_fallback_video`
+  - 否则 → `repair_code`
+- `route_after_qc`
+  - 通过 → `save_cache`
+  - 失败 → `finalize_failure`
 
 ---
 
@@ -144,6 +158,8 @@ Client
 - 请求/规划：`request_payload`、`normalized_request`、`scene_ir`、`risk_report`、`notices`
 - 代码与问题：`current_code`、`current_issues`、`previous_issues`
 - 渲染与修复：`last_render_report`、`last_repair_metadata`、`last_validation`
+- 缓存：`cache_key`、`cache_hit`
+- 媒体：`audio_assets`、`bgm_asset`、`audio_mix_report`、`mux_report`、`qc_report`、`final_video_path`、`final_audio_path`
 - 上传与结果：`upload_result`、`final_result`、`error_message`
 
 ---
@@ -165,43 +181,79 @@ Client
 ### 7.3 `load_notices`
 - 从 `prompts/notices/validated_notices.yaml` 读取规则
 
-### 7.4 `generate_code`
-- `ManimCodeExpert.run(scene_ir)` 生成完整 Python 脚本
+### 7.4 `resolve_assets`
+- 从 `normalized_request` 或 `request_payload` 提取 `timedScenes`
+- 调用 `AudioAssetResolver.resolve` 下载场景音频和 BGM
+- 失败时生成 `AUDIO_001` 类 issue 并路由至 `finalize_failure`
+- 状态更新为 `ASSET_FAILED`（失败时）
+
+### 7.5 `check_cache`
+- 若 `enable_render_cache=false`，直接返回 `cache_hit=false`
+- 计算 `SHA256(scene_ir + 音频URL×时长)` 作为缓存键
+- 命中时设置 `cache_hit=True`、`final_video_path` 指向缓存文件、`status=CACHE_HIT`
+- 未命中时记录 `cache_key` 供后续 `save_cache` 使用
+
+### 7.6 `generate_code`
+- 自适应策略：早期尝试用 `DirectCodegenAgent`（LLM 增强），超过阈值后降级为 `ManimCodeExpert`（确定性模板）
+- 代码质量预检（`preflight_code_quality`），不合格则 `CODE_REJECTED`
 - 状态更新为 `CODE_GENERATED`
 
-### 7.5 `render_code`
+### 7.7 `render_code`
 - 创建 attempt 目录：`attempts/{NN}`
 - 写入 `generated.py`
 - 更新任务状态 `RENDERING`
 - 调用 `RenderExecutor.run`，产出 `render_report.json`
 
-### 7.6 `diagnose_errors`
+### 7.8 `diagnose_errors`
 - `ErrorDiagnoser.run(last_render_report)` 解析 stdout/stderr
 - 落盘 `issues.json`
 - 更新任务状态 `RENDER_FAILED`
 
-### 7.7 `validate_previous_fix`
+### 7.9 `validate_previous_fix`
 - 首轮无 `previous_issues` 时跳过验证
 - 否则 `FixValidator.run(...)`
 - 落盘 `validation.json`
 - 若满足学习条件，写入 notice 仓库
 
-### 7.8 `repair_code`
+### 7.10 `repair_code`
 - `RepairAgent.run(code, issues, attempt_no)`
 - 落盘 `repair_decision.json`
 - 更新状态 `REPAIRING`
 - 输出新代码并缓存 `previous_issues`
 
-### 7.9 `increment_attempt`
+### 7.11 `increment_attempt`
 - `attempt_no += 1`
 
-### 7.10 `upload_video`
+### 7.12 `generate_fallback_video`
+- 当多次修复失败或无进展时的最后兜底方案
+- 生成极简纯文本 Manim 场景（标题 + 降级提示），只尝试一次渲染
+- 成功 → `status=FALLBACK_SUCCESS` → 继续音频合成
+- 失败 → `status=FALLBACK_FAILED` → `finalize_failure`
+
+### 7.13 `compose_audio_timeline`
+- 调用 `AudioTimelineComposer.compose` 合成多轨音频（场景配音 + BGM 闪避）
+- 落盘 `audio_mix_report.json`
+
+### 7.14 `mux_audio_video`
+- 调用 `AVMuxer.mux` 合并视频和音频
+- 落盘 `mux_report.json`
+
+### 7.15 `media_qc`
+- 调用 `MediaQC.check` 检查音视频时长同步
+- 落盘 `qc_report.json`
+
+### 7.16 `save_cache`
+- 若 `enable_render_cache=false` 则跳过
+- 将 `final_video_path` 复制到 `cache_root/{cache_key}.mp4`
+- 更新缓存索引文件 `cache_index.json`
+
+### 7.17 `upload_video`
 - 使用 `oss_path_prefix/task_id/file_base_name.mp4` 构建 object key
 - 调用 `OSSUploader.upload`
 - 保存 `final/final_result.json`
 - 任务状态置为 `COMPLETED`
 
-### 7.11 `finalize_failure`
+### 7.18 `finalize_failure`
 - 生成统一失败结果
 - 保存 `final/final_result.json`
 - 任务状态置为 `FAILED`
@@ -290,7 +342,13 @@ Client
 - 文件：`prompts/notices/validated_notices.yaml`
 - 能追加并累加 `verified_attempts`
 
-### 10.3 典型任务目录
+### 10.3 `RenderCache`（`app/utils/cache.py`）
+- 目录：`render_cache/`（由 `CACHE_ROOT` 配置）
+- 文件：`cache_index.json` + `{sha256}.mp4`
+- 内容寻址缓存，键 = `SHA256(scene_ir + 音频URL×时长)`
+- 通过 `ENABLE_RENDER_CACHE` 环境变量控制启停
+
+### 10.4 典型任务目录
 
 ```text
 runtime/tasks/{task_id}/
@@ -411,6 +469,12 @@ runtime/tasks/{task_id}/
 ### 13.5 可执行程序
 - `FFPROBE_BIN` 默认 `ffprobe`
 - `MANIM_BIN` 默认 `manim`
+- `FFMPEG_BIN` 默认 `ffmpeg`
+
+### 13.6 缓存
+- `ENABLE_RENDER_CACHE` 默认 `true`，设为 `false` 关闭渲染结果缓存
+- `CACHE_ROOT` 默认 `video/runtime/render_cache`，缓存文件存储目录
+- `AUDIO_CACHE_ROOT` 默认 `video/runtime/audio_cache`，音频下载缓存目录
 
 ---
 

@@ -591,7 +591,9 @@ class GraphNodes:
 
     def media_qc(self, state: VideoGraphState) -> VideoGraphState:
         attempt_dir = self.task_repo.prepare_attempt(state["task_id"], state["attempt_no"])
-        qc_report = self.media_qc_checker.check(Path(state.get("final_video_path") or ""))
+        video_spec = ((state.get("scene_ir") or {}).get("projectBrief") or {}).get("videoSpec") or {}
+        expected_res = video_spec.get("resolution")
+        qc_report = self.media_qc_checker.check(Path(state.get("final_video_path") or ""), expected_resolution=expected_res)
         write_json(attempt_dir / "qc_report.json", qc_report)
 
         if not qc_report.get("passed"):
@@ -734,7 +736,9 @@ class FallbackScene(Scene):
         code_file = attempt_dir / "generated.py"
         code_file.write_text(fallback_code, encoding="utf-8")
         
-        render_report = self.render_executor.run(code_file, attempt_dir, scene_class="FallbackScene")
+        request = RenderRequest(**state["request_payload"])
+        request.output_policy.scene_class_name = "FallbackScene"
+        render_report = self.render_executor.run(request=request, code_file=code_file, attempt_dir=attempt_dir)
         
         if render_report.get("success"):
             logger.info(

@@ -26,7 +26,9 @@ def test_media_qc_passes_with_audio_stream(tmp_path: Path):
         }
     )
 
-    report = qc.check(tmp_path / "x.mp4")
+    video_path = tmp_path / "x.mp4"
+    video_path.write_bytes(b"\0" * 10240)
+    report = qc.check(video_path)
     assert report["passed"] is True
 
 
